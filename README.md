@@ -1,10 +1,8 @@
-***Please note: This is a prototype and data is only saved to memory so it will dissapear when the application is closed.*** (The reason for saving to memory instead of saving to the disk is that we are still making large changes in the database code)
+Project status: Pre-alpha
 
-# Buddhist Well-Being
+# Well-being Diary
 
-*Buddhist Well-Being* is a happiness and well-being diary application inspired by Buddhist ethics
-
-It's a cross-platform desktop application and is in an early development/prototype stage
+A happiness and well-being diary application. It's a cross-platform desktop application and is in an early development/prototype stage
 
 **Table of contents:**
 
@@ -16,15 +14,11 @@ It's a cross-platform desktop application and is in an early development/prototy
 
 ## Description
 
-A digital Buddhist diary for laypeople, at present there are four journals:
-* Study
-* Practice
-* Engaged practice
-* Gratitude and play
+The user can write questions for herself that can be used to support happiness, compassion and well-being
 
 ### Background
 
-Having studied wellness factors (as part of an online course in positive psychology) i was not satisfied with the factors that i found so i started looking into the Buddhist tradition where i have a background, and found a text in the book "Old Path, White Clouds" (by Thich Nhat Hanh) which directed at laypeople and was very practical. This stuck with me for some time and eventually i decided to start working on this project thinking that a diary application would be a useful format for encouriging people to focus on these principles
+TBD
 
 ### License
 
@@ -37,8 +31,8 @@ There are no installation packages but it's really simple to install by followin
 
 1. Download the Python 3.x installation package for your platform: https://www.python.org/downloads/
 2. Install Python 3.x
-3. On the command line: `pip3 install --upgrade pip` (On Ubuntu use `sudo`)
-4. On the command line: `pip3 install PyQt5` (On Ubuntu use `sudo`)
+3. On the command line: `pip3 install --upgrade pip` (On Ubuntu use `sudo -H`)
+4. On the command line: `pip3 install PyQt5` (On Ubuntu use `sudo -H`)
 5. Download the project files from GitHub, by clicking on the "Clone or download" button and then "Download ZIP"
 6. Unzip the downloaded file
 
@@ -48,13 +42,13 @@ Please note: *This is not necessary for running the application*, instead you ca
 
 #### GNU/Linux systems
 
-For desktop systems that are compatible with the [freedesktop](https://www.freedesktop.org/) standard - for example Gnome and KDE - you can use the bwb.desktop file included in the source (please note that if using a file manager such as the Gnome file manager you may see the name displayed as "Buddhist Well-Being" rather than the file name)
+For desktop systems that are compatible with the [freedesktop](https://www.freedesktop.org/) standard - for example Gnome and KDE - you can use the bwb.desktop file included in the source (please note that if using a file manager such as the Gnome file manager you may see the name displayed as "Well-being Diary" rather than the file name)
 
 To use this file:
 
-1. Edit the `bwb.desktop` file and change the paths to match the path that you are using
-2. Copy the `bwb.desktop` file to your desktop or any place where you want to be able to start the application from
-3. Copy the `bwb.desktop` file to `/usr/share/applications/` using `sudo` - this will make the application visible in any start-menu-like menu (in Lubuntu this is called the "main menu" and it's shown when clicking the button in the lower left, "vanilla" (the ordinary) Ubuntu may not have a menu like this
+1. Edit the `wbd.desktop` file and change the paths to match the path that you are using
+2. Copy the `wbd.desktop` file to your desktop or any place where you want to be able to start the application from
+3. Copy the `wbd.desktop` file to `/usr/share/applications/` using `sudo` - this will make the application visible in any start-menu-like menu (in Lubuntu this is called the "main menu" and it's shown when clicking the button in the lower left, "vanilla" (the ordinary) Ubuntu may not have a menu like this
 
 ### Hardware recommendations
 
@@ -66,7 +60,9 @@ To use this file:
 ## Usage
 
 1. Change directory to where the software files have been extracted
-2. Type and run `python3 buddhist-well-being-pyqt5.py` on GNU/Linux systems or `python buddhist-well-being-pyqt5.py` on Windows (TBD: MacOS)
+2. Type and run `python3 well-being-diary.py` on GNU/Linux systems or `python well-being-diary.py` on Windows (TBD: MacOS)
+
+Alternatively you can start the application with the `--persistent` flag, this will make sure that the application data is stored permanently. **Please note that by default data is only stored in memory and will dissapear when the application is closed**
 
 
 ## Feedback
@@ -75,11 +71,11 @@ Feedback is very welcome! If you send us feedback it can help improve the softwa
 
 ### Ideas for improving the software
 
-https://www.loomio.org/g/6szAVPlR/buddhist-well-being
+https://gitter.im/fswellbeing/well-being-diary
 
 ### Reporting bugs
 
-Please use the GitHub issue tracker: https://github.com/SunyataZero/buddhist-well-being-pyqt5/issues
+Please use the GitHub issue tracker: https://github.com/SunyataZero/well-being-diary/issues
 
 Don't hesitate to file a bug! *You are helping to improve the software*. Also if something is unclear in the *documentation* that counts as a bug as well, so please report it
 
