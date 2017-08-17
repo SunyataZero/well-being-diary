@@ -1,0 +1,108 @@
+Buddha as a spiritual friend
+calling the buddha a friend in the bwb diary application
+cmp with sharing happiness with friends: inside the bwb diary application we are sharing things with the buddha
+
+**feelings and needs integrated**
+
+======================
+
+{}
+[insight]
+<>
+
+""
+''
+#hashtag - generic
+¤happiness - source of joy
+@friend
+^place (peaceful place)
+/need satisfied
+\need not satisfied
++feeling (+positive feeling, -negative feeling)
+%=<¤'*@"[{+-!_~|\/.:;,^
+combining sign with + or -, for example: #+community #-autonomy
+*only focusing on met needs(?)*
+{övningar/practices}
+
+**needs and feelings can work in chat with others as well!** (previously a stand-alone idea
+discussed with E.G.)
+needs and feelings are usually one word so don't have to have an ending character literal,
+only a beginning character literal
+.:;,+-!_'*
+._
+
+place: good to get out and moving
+
+friend: social is important
+
+feelings and needs: good to be aware of these
+one problem could be that there are alternative ways to write them. but if they are stored as their own objects we could allow for multiple ways of writing them. also people may just want to append them to the end of the text they are writing
+
+insights: these could be shown as quotes in a side area
+
+One advantage of using plain text as input is that we can then do our own formatting of the rich
+text that is displayed (after the text has been added). For example, insights can be in italics,
+and we can add colour or other formatting
+
+making a difference between hings that are added inline and things that are added first and then
+accessed inline. maybe also making a difference by choosing if they are inline at all?
+for example: we could have needs presented as non-inline tags
+
+
+========
+
+if the tag (for example) is present in the current view, we could highlight this (in the list of
+tags and/or in the central area)
+
+========
+
+Completion:
+http://doc.qt.io/qt-5/qtwidgets-tools-customcompleter-example.html
+http://doc.qt.io/qt-5/qtwidgets-tools-completer-example.html
+http://doc.qt.io/qt-5/qcompleter.html#QCompleter-2
+
+===========
+
+[pixels_wide] ~= [number_of_characters] * 0.45 * [font_points]
+
+===========
+
+
+idé: sortera vänner efter hur nära i tiden vi har träffats
+
+
+===========
+
+
+what i have learnt
+/
+insights
+
+
+========
+
+**Entry mode - no distraction**
+
+**Ändra där texten är isf separat**
+
+kompromiss: lyfta fram entry area
+
+
+========
+
+
+idea: words without a prefix for tracking buddhist wisdom for example?
+*****If there is a list that is not expanded or slowly expanded we might as well skip the prefix*****
+
+prefixes are better used for things that could be added on the fly and things that are ambiguous (ex: friends)
+
+tracking mood
+inside bwb or separate?
+
+breathing circle in the background area of the diary area?
+
+=======
+
+# Tech
+
+https://github.com/krrr/Hazama
