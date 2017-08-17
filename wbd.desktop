@@ -1,9 +1,9 @@
 [Desktop Entry]
 Name=Well-being Diary
-Exec=python3 /home/sunyata/PycharmProjects/well-being-diary/well-being-diary.py --persistent
+Exec=python3 /home/sunyata/PycharmProjects/well-being-diary/well-being-diary.py
 Terminal=false
 Type=Application
-Icon=/home/sunyata/PycharmProjects/well-being-diary-4/icon.png
+Icon=/home/sunyata/PycharmProjects/well-being-diary/icon.png
 Name[en_US]=Buddhist Well-Being
 Path=/home/sunyata/PycharmProjects/well-being-diary
 StartupNotify=false
