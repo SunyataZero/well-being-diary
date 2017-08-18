@@ -11,6 +11,7 @@ from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
 import wbd.wbd_global
+import wbd.window
 
 
 if __name__ == "__main__":
