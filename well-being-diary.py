@@ -18,13 +18,13 @@ if __name__ == "__main__":
     # Application setup..
     # ..command line arguments
     argument_parser = argparse.ArgumentParser()
-    argument_parser.add_argument("--persistent", "-p", help="Persistent db storage", action="store_true")
+    argument_parser.add_argument("--testing", "-p", help="Persistent db storage", action="store_true")
     # -for info about "store_true" please search here: https://docs.python.org/3/howto/argparse.html
     args = argument_parser.parse_args()
-    if args.persistent:
-        wbd.wbd_global.persistent_bool = True
+    if args.testing:
+        wbd.wbd_global.testing_bool = True
     else:
-        wbd.wbd_global.persistent_bool = False
+        wbd.wbd_global.testing_bool = False
 
     # ..configuration file
     config = configparser.ConfigParser()

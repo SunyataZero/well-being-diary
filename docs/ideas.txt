@@ -101,6 +101,29 @@ inside bwb or separate?
 
 breathing circle in the background area of the diary area?
 
+idea: mark journal questions as extra important?
+
+idea: show number of days since last mentioned each friend (maybe in parenthesis after the name of the friend)
+
+
+
+================
+
+# Questions at the setup of the application
+
+What have i done for others today?
+aka Livelihood
+
+Practice
+Meditation
+
+Gratitude
+Relaxation
+
+Self-compassion
+
+Compassion for others
+
 =======
 
 # Tech

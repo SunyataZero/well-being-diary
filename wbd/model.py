@@ -109,7 +109,7 @@ def initial_schema_and_setup(i_db_conn):
         + ")"
     )
 
-    if not wbd.wbd_global.persistent_bool:
+    if wbd.wbd_global.testing_bool:
         populate_db_with_test_data()
 
 

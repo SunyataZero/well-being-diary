@@ -41,8 +41,9 @@ class WellBeingWindow(QtWidgets.QMainWindow):
         # Initializing window
         self.setGeometry(40, 30, 1100, 700)
         self.showMaximized()
-        data_storage_str = "{data stored in memory}"
-        if wbd.wbd_global.persistent_bool:
+        if wbd.wbd_global.testing_bool:
+            data_storage_str = "{data stored in memory}"
+        else:
             data_storage_str = "{data stored on hard drive}"
         self.setWindowTitle(wbd.wbd_global.BWB_APPLICATION_NAME_STR + " ["
                             + wbd.wbd_global.BWB_APPLICATION_VERSION_STR + "] "

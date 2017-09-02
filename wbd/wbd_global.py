@@ -39,14 +39,14 @@ def qdate_to_unixtime(i_qdate: QtCore.QDate) -> int:
     unixtime_it = qdatetime.toMSecsSinceEpoch() // 1000
     return unixtime_it
 
-persistent_bool = False
+testing_bool = False
 
 
 def get_database_filename():
-    if persistent_bool:
-        return "bwb_database_file.db"
-    else:
+    if testing_bool:
         return ":memory:"
+    else:
+        return "bwb_database_file.db"
 
 
 
