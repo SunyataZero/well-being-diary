@@ -16,9 +16,9 @@ A happiness and well-being diary application. It's a cross-platform desktop appl
 
 The user can write questions for herself that can be used to support happiness, compassion and well-being
 
-### Background
+### Screenshots
 
-TBD
+
 
 ### License
 
@@ -27,7 +27,7 @@ GPLv3
 
 ## Installation
 
-There are no installation packages but it's really simple to install by following these steps:
+There are no installation packages but it's simple to install by following these steps:
 
 1. Download the Python 3.x installation package for your platform: https://www.python.org/downloads/
 2. Install Python 3.x
@@ -42,13 +42,13 @@ Please note: *This is not necessary for running the application*, instead you ca
 
 #### GNU/Linux systems
 
-For desktop systems that are compatible with the [freedesktop](https://www.freedesktop.org/) standard - for example Gnome and KDE - you can use the bwb.desktop file included in the source (please note that if using a file manager such as the Gnome file manager you may see the name displayed as "Well-being Diary" rather than the file name)
+For desktop systems that are compatible with the [freedesktop](https://www.freedesktop.org/) standard - for example Gnome and KDE - you can use the bwb.desktop file included in the source (please note that if using a file manager such as the Gnome file manager you may see the name displayed as "Well-being Diary" rather than the file name) to make the application visible in any start-menu-like menu (in Lubuntu this is called the "main menu" and it's shown when clicking the button in the lower left, "vanilla" (the ordinary) Ubuntu may not have a menu like this
 
 To use this file:
 
-1. Edit the `wbd.desktop` file and change the paths to match the path that you are using
-2. Copy the `wbd.desktop` file to your desktop or any place where you want to be able to start the application from
-3. Copy the `wbd.desktop` file to `/usr/share/applications/` using `sudo` - this will make the application visible in any start-menu-like menu (in Lubuntu this is called the "main menu" and it's shown when clicking the button in the lower left, "vanilla" (the ordinary) Ubuntu may not have a menu like this
+1. Edit the `well-being-diary.desktop` file and change the paths to match the path that you are using
+2. Copy the `well-being-diary.desktop` file to your desktop or any place where you want to be able to start the application from
+3. Copy the `well-being-diary.desktop` file to `/usr/share/applications/` using `sudo`
 
 ### Hardware recommendations
 
@@ -60,10 +60,11 @@ To use this file:
 ## Usage
 
 1. Change directory to where the software files have been extracted
-2. Type and run `python3 well-being-diary.py` on GNU/Linux systems or `python well-being-diary.py` on Windows (TBD: MacOS)
+2. Type and run `python3 well-being-diary.py` on GNU/Linux systems or `python well-being-diary.py` on Windows
 
-Alternatively you can start the application with the `--persistent` flag, this will make sure that the application data is stored permanently. **Please note that by default data is only stored in memory and will dissapear when the application is closed**
+### Testing
 
+Alternatively you can start the application with the `--testing` flag, this will make sure that the application data is stored in memory only and not saved when the application is closed
 
 ## Feedback
 
@@ -81,4 +82,4 @@ Don't hesitate to file a bug! *You are helping to improve the software*. Also if
 
 ### What is already working well
 
-This is good to know so that we know what to keep, also it gives motiviation to continue working on the software
+This is good to know so that we know what to keep, also it gives motiviation to continue working on the software <3
