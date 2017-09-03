@@ -18,7 +18,7 @@ if __name__ == "__main__":
     # Application setup..
     # ..command line arguments
     argument_parser = argparse.ArgumentParser()
-    argument_parser.add_argument("--testing", "-p", help="Persistent db storage", action="store_true")
+    argument_parser.add_argument("--testing", "-t", help="Testing - data saved in memory only", action="store_true")
     # -for info about "store_true" please search here: https://docs.python.org/3/howto/argparse.html
     args = argument_parser.parse_args()
     if args.testing:
