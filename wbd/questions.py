@@ -238,7 +238,9 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
                 question_title_str = "<b>" + question.title_str + "</b>"
 
             question_title_qll = CustomQLabel(question_title_str, question.id_int)
-            question_title_qll.mouse_pressed_signal.connect(self.on_list_row_label_mouse_pressed)
+            question_title_qll.mouse_pressed_signal.connect(
+                self.on_list_row_label_mouse_pressed
+            )
             self.list_widget.addItem(row_item)
             self.list_widget.setItemWidget(row_item, question_title_qll)
 

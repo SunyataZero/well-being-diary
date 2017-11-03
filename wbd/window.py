@@ -257,12 +257,12 @@ class WellBeingWindow(QtWidgets.QMainWindow):
 
     def show_about_box(self):
         message_box = QtWidgets.QMessageBox.about(
-            self, "About Buddhist Well-Being",
+            self, "<html>About Buddhist Well-Being",
             ("Concept and programming by _____\n"
             'Photography (for icons) by Torgny Dellsén - <a href="torgnydellsen.zenfolio.com">asdf</a><br>'
             "Software License: GPLv3\n"
             "Photo license: CC BY-SA 4.0"
-            "Art license: CC PD")
+            "Art license: CC PD</html>")
         )
 
     def update_gui(self, i_event_source=EventSource.undefined):
