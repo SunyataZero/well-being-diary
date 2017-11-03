@@ -25,6 +25,12 @@ class CompositeCalendarWidget(QtWidgets.QWidget):
 
         self.calendar_widget = QtWidgets.QCalendarWidget()
         self.vbox_l2.addWidget(self.calendar_widget)
+        htf = self.calendar_widget.headerTextFormat()
+        htf.setFontPointSize(7.0)
+        self.calendar_widget.setHeaderTextFormat(htf)
+        cf = self.calendar_widget.font()
+        cf.setPointSize(7.0)
+        self.calendar_widget.setFont(cf)
         self.calendar_widget.setGridVisible(True)
 
         #if self.calendar_widget is not None:
