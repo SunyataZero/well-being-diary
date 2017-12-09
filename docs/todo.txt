@@ -10,6 +10,7 @@ easier to archive old questions
 
 [ ] day or all - removing the month option
 
+[ ] show in bold if today
 feelings by time - this will show the feeling that the user has experienced recently
 places by time - -"-
 friends by time - -"-
