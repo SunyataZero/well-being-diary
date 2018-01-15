@@ -50,7 +50,6 @@ class CompositeCentralWidget(QtWidgets.QWidget):
         self.view_radio_qbuttongroup.addButton(
             self.monthly_view_qrb,
             wbd.wbd_global.ViewEnum.journal_monthly_view.value)
-        self.day_view_qrb.setChecked(True)
         self.search_view_qrb = QtWidgets.QRadioButton("Search")
         self.view_radio_qbuttongroup.addButton(
             self.search_view_qrb,
@@ -113,6 +112,8 @@ class CompositeCentralWidget(QtWidgets.QWidget):
         adding_area_hbox_l3.addLayout(edit_diary_entry_vbox_l4)
 
         self.vbox_l2.addLayout(adding_area_hbox_l3)
+
+        self.day_view_qrb.setChecked(True)
 
         self.update_gui()
 
