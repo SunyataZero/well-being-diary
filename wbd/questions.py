@@ -192,8 +192,9 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
         # if current_row_int != NO_QUESTION_INT:
         current_question_qli = self.list_widget.item(current_row_int)
         customqlabel_widget = self.list_widget.itemWidget(current_question_qli)
-        wbd.wbd_global.active_question_id_it = customqlabel_widget.question_entry_id
-        self.current_row_changed_signal.emit()
+        if customqlabel_widget is not None:
+            wbd.wbd_global.active_question_id_it = customqlabel_widget.question_entry_id
+            self.current_row_changed_signal.emit()
         # else:
         # pass
         ######wbd.bwbglobal.active_question_id_it = None

@@ -155,9 +155,9 @@ class CompositeCentralWidget(QtWidgets.QWidget):
 
     def update_gui(self):
         if wbd.wbd_global.active_view_viewenum == wbd.wbd_global.ViewEnum.journal_monthly_view:
-            assert wbd.wbd_global.active_question_id_it != wbd.wbd_global.NO_ACTIVE_QUESTION_INT
-            active_journalm = wbd.model.QuestionM.get(wbd.wbd_global.active_question_id_it)
-            self.diary_label.setText("<h3>" + active_journalm.title_str + "</h3>")
+            if wbd.wbd_global.active_question_id_it != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
+                active_journalm = wbd.model.QuestionM.get(wbd.wbd_global.active_question_id_it)
+                self.diary_label.setText("<h3>" + active_journalm.title_str + "</h3>")
         elif wbd.wbd_global.active_view_viewenum == wbd.wbd_global.ViewEnum.search_view:
             pass
         elif wbd.wbd_global.active_view_viewenum == wbd.wbd_global.ViewEnum.diary_daily_overview:
