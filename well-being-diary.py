@@ -4,8 +4,7 @@ import logging
 import argparse
 import configparser
 
-import PyQt5
-from PyQt5 import Qt
+import PyQt5.Qt
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
