@@ -520,19 +520,16 @@ class DiaryEntryM:
         return ret_diary_list
 
     @staticmethod
-    def get_all_for_question_and_month(
-            i_question_id_it, i_start_of_month_as_unix_time_it,
-            i_number_of_days_in_month_it, i_reverse_bl=False):
+    def get_all_for_question(i_question_id_it, i_page_number_int: int, i_reverse_bl=False):
         ret_diary_list = []
         db_connection = DbHelperM.get_db_connection()
         db_cursor = db_connection.cursor()
         db_cursor_result = db_cursor.execute(
             "SELECT * FROM " + DbSchemaM.DiaryEntryTable.name
-            + " WHERE " + DbSchemaM.DiaryEntryTable.Cols.date_added + ">=" + str(i_start_of_month_as_unix_time_it)
-            + " AND " + DbSchemaM.DiaryEntryTable.Cols.date_added + "<"
-            + str(i_start_of_month_as_unix_time_it + 24 * 3600 * i_number_of_days_in_month_it)
-            + " AND " + DbSchemaM.DiaryEntryTable.Cols.question_ref + "=" + str(i_question_id_it)
+            + " WHERE " + DbSchemaM.DiaryEntryTable.Cols.question_ref + "=" + str(i_question_id_it)
             + " ORDER BY " + DbSchemaM.DiaryEntryTable.Cols.date_added
+            + " LIMIT " + str(wbd.wbd_global.diary_entries_per_page_int)
+            + " OFFSET " + str(i_page_number_int * wbd.wbd_global.diary_entries_per_page_int)
         )
         diary_db_te_list = db_cursor_result.fetchall()
         for diary_db_te in diary_db_te_list:

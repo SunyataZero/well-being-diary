@@ -168,18 +168,17 @@ class DiaryListCompositeWidget(QtWidgets.QWidget):
 
     def update_gui(self):
         clear_widget_and_layout_children(self.scroll_list_vbox_l5)
-        qdate = QtCore.QDate(wbd_global.shown_year_it, wbd_global.shown_month_1to12_it, 1)
-        qdatetime = QtCore.QDateTime(qdate)
-        start_of_month_as_unix_time_it = qdatetime.toMSecsSinceEpoch() // 1000
 
-        diarym_list = []
-        if wbd_global.active_view_viewenum == wbd_global.ViewEnum.journal_monthly_view:
-            diarym_list = wbd.model.DiaryEntryM.get_all_for_question_and_month(
-                wbd_global.active_question_id_it, start_of_month_as_unix_time_it, qdate.daysInMonth())
-        elif wbd_global.active_view_viewenum == wbd_global.ViewEnum.diary_daily_overview:
-            diarym_list = wbd.model.DiaryEntryM.get_all_for_active_day()
+        diary_list = []
+        if wbd_global.active_view_viewenum == wbd_global.ViewEnum.question_view:
+            diary_list = wbd.model.DiaryEntryM.get_all_for_question(
+                wbd_global.active_question_id_it,
+                wbd.wbd_global.current_page_number_int
+            )
+        elif wbd_global.active_view_viewenum == wbd_global.ViewEnum.daily_overview:
+            diary_list = wbd.model.DiaryEntryM.get_all_for_active_day()
         elif wbd_global.active_view_viewenum == wbd_global.ViewEnum.search_view:
-            diarym_list = wbd.model.DiaryEntryM.get_all_for_search_term(
+            diary_list = wbd.model.DiaryEntryM.get_all_for_search_term(
                 wbd.wbd_global.search_string_str,
                 wbd.wbd_global.current_page_number_int
             )
@@ -187,7 +186,7 @@ class DiaryListCompositeWidget(QtWidgets.QWidget):
             raise Exception("Can not get here")
 
         old_date_str = ""
-        for diary_entry in diarym_list:
+        for diary_entry in diary_list:
             label_text_sg = diary_entry.diary_text.strip()
 
             hbox_l6 = QtWidgets.QHBoxLayout()
@@ -198,7 +197,7 @@ class DiaryListCompositeWidget(QtWidgets.QWidget):
                 date_string_format_str = "%-d %b"  # -weekday
 
             left_qlabel = QtWidgets.QLabel("")
-            if wbd_global.active_view_viewenum == wbd_global.ViewEnum.journal_monthly_view:
+            if wbd_global.active_view_viewenum == wbd_global.ViewEnum.question_view:
                 date_str = datetime.datetime.fromtimestamp(diary_entry.date_added_it).strftime(
                     date_string_format_str)
                 if old_date_str == date_str:
@@ -208,7 +207,7 @@ class DiaryListCompositeWidget(QtWidgets.QWidget):
                 else:
                     left_qlabel.setText(date_str)
                 old_date_str = date_str
-            elif wbd_global.active_view_viewenum == wbd_global.ViewEnum.diary_daily_overview:
+            elif wbd_global.active_view_viewenum == wbd_global.ViewEnum.daily_overview:
                 if diary_entry.question_ref_it != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
                     questionm = wbd.model.QuestionM.get(diary_entry.question_ref_it)
                     question_title_sg = str(questionm.title_str)

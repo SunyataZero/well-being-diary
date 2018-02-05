@@ -11,8 +11,8 @@ from PyQt5 import QtCore
 
 
 class ViewEnum(enum.Enum):
-    diary_daily_overview = 0
-    journal_monthly_view = 1
+    daily_overview = 0
+    question_view = 1
     search_view = 2
 
 
@@ -20,7 +20,7 @@ BWB_APPLICATION_VERSION_STR = "prototype 4"
 BWB_APPLICATION_NAME_STR = "Well-Being Journal"
 NO_ACTIVE_QUESTION_INT = -1
 
-active_view_viewenum = ViewEnum.diary_daily_overview
+active_view_viewenum = ViewEnum.daily_overview
 active_date_qdate = QtCore.QDate.currentDate()
 active_question_id_it = NO_ACTIVE_QUESTION_INT  # -TODO: Change this
 shown_month_1to12_it = QtCore.QDate.currentDate().month()

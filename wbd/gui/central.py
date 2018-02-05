@@ -43,13 +43,13 @@ class CompositeCentralWidget(QtWidgets.QWidget):
         self.day_view_qrb = QtWidgets.QRadioButton("Daily Overview")
         self.view_radio_qbuttongroup.addButton(
             self.day_view_qrb,
-            wbd.wbd_global.ViewEnum.diary_daily_overview.value)
+            wbd.wbd_global.ViewEnum.daily_overview.value)
         hbox_l3.addWidget(self.day_view_qrb)
         self.question_view_qrb = QtWidgets.QRadioButton("Question View")
         hbox_l3.addWidget(self.question_view_qrb)
         self.view_radio_qbuttongroup.addButton(
             self.question_view_qrb,
-            wbd.wbd_global.ViewEnum.journal_monthly_view.value)
+            wbd.wbd_global.ViewEnum.question_view.value)
         self.search_view_qrb = QtWidgets.QRadioButton("Search")
         self.view_radio_qbuttongroup.addButton(
             self.search_view_qrb,
@@ -153,6 +153,7 @@ class CompositeCentralWidget(QtWidgets.QWidget):
         self.update_gui()
 
     def on_view_radio_button_toggled(self):
+        wbd.wbd_global.current_page_number_int = 0  # -resetting
         wbd.wbd_global.active_view_viewenum = wbd.wbd_global.ViewEnum(self.view_radio_qbuttongroup.checkedId())
         self.update_gui()
 
@@ -162,7 +163,7 @@ class CompositeCentralWidget(QtWidgets.QWidget):
         self.journal_button_toggled_signal.emit()
 
     def update_gui(self):
-        if wbd.wbd_global.active_view_viewenum == wbd.wbd_global.ViewEnum.journal_monthly_view:
+        if wbd.wbd_global.active_view_viewenum == wbd.wbd_global.ViewEnum.question_view:
             self.view_type_qll.setText("<h3>Question View</h3>")
             """
             if wbd.wbd_global.active_question_id_it != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
@@ -171,7 +172,7 @@ class CompositeCentralWidget(QtWidgets.QWidget):
             """
         elif wbd.wbd_global.active_view_viewenum == wbd.wbd_global.ViewEnum.search_view:
             pass
-        elif wbd.wbd_global.active_view_viewenum == wbd.wbd_global.ViewEnum.diary_daily_overview:
+        elif wbd.wbd_global.active_view_viewenum == wbd.wbd_global.ViewEnum.daily_overview:
             self.view_type_qll.setText("<h3>Daily Overview</h3>")
         else:
             raise Exception("Should not be able to get here")
