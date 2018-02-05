@@ -25,4 +25,9 @@
 
 
 
+            """
+            if wbd.wbd_global.active_question_id_it != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
+                active_journalm = wbd.model.QuestionM.get(wbd.wbd_global.active_question_id_it)
+                self.view_type_qll.setText("<h3>" + active_journalm.title_str + "</h3>")
+            """
 

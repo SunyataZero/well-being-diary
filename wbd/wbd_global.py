@@ -16,6 +16,8 @@ class ViewEnum(enum.Enum):
     search_view = 2
 
 
+diary_view_locked_bool = False
+
 BWB_APPLICATION_VERSION_STR = "prototype 4"
 BWB_APPLICATION_NAME_STR = "Well-Being Journal"
 NO_ACTIVE_QUESTION_INT = -1

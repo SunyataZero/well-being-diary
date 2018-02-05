@@ -60,7 +60,8 @@ class WellBeingWindow(QtWidgets.QMainWindow):
         self.custom_calendar_w3 = wbd.gui.calendar.CompositeCalendarWidget()
         self.custom_calendar_w3.setFixedHeight(240)
         self.custom_calendar_w3.calendar_widget.selectionChanged.connect(self.on_calendar_selection_changed)
-        self.custom_calendar_w3.calendar_widget.currentPageChanged.connect(self.on_calendar_page_changed)
+        # -TODO: Move this into the calendar widget class
+        ### self.custom_calendar_w3.calendar_widget.currentPageChanged.connect(self.on_calendar_page_changed)
         calendar_dock_qdw2.setWidget(self.custom_calendar_w3)
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, calendar_dock_qdw2)
         # ..questions
@@ -228,20 +229,27 @@ class WellBeingWindow(QtWidgets.QMainWindow):
         self.central_widget_w3.adding_text_to_diary_textedit_w6.setText(new_text_str)
 
     def on_calendar_selection_changed(self):
+        if not wbd.wbd_global.diary_view_locked_bool:
+            wbd.wbd_global.active_view_viewenum = wbd.wbd_global.ViewEnum.daily_overview
         logging.debug("Selected date: " + str(self.custom_calendar_w3.calendar_widget.selectedDate()))
         wbd.wbd_global.active_date_qdate = self.custom_calendar_w3.calendar_widget.selectedDate()
         self.update_gui(EventSource.calendar_selection_changed)
 
+    """
     def on_calendar_page_changed(self):
         wbd.wbd_global.shown_month_1to12_it = self.custom_calendar_w3.calendar_widget.monthShown()
         wbd.wbd_global.shown_year_it = self.custom_calendar_w3.calendar_widget.yearShown()
         self.update_gui(EventSource.calendar_selection_changed)
+    """
 
     def on_practice_details_time_of_day_state_changed(self):
         self.update_gui(EventSource.practice_details)
 
     def on_question_current_row_changed(self):
         # -"None" cannot be sent using the signal system since it is not an "int"
+
+        if not wbd.wbd_global.diary_view_locked_bool:
+            wbd.wbd_global.active_view_viewenum = wbd.wbd_global.ViewEnum.question_view
 
         if wbd.wbd_global.active_question_id_it is not None:
             question = wbd.model.QuestionM.get(wbd.wbd_global.active_question_id_it)
