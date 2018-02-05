@@ -196,34 +196,40 @@ class DiaryListCompositeWidget(QtWidgets.QWidget):
             if diary_entry.date_added_it < time.time() - 60 * 60 * 24 * 7:
                 date_string_format_str = "%-d %b"  # -weekday
 
-            left_qlabel = QtWidgets.QLabel("")
+            time_qlabel = QtWidgets.QLabel("")
+            question_title_qlabel = QtWidgets.QLabel("")
+            question_title_sg = ""
             if wbd_global.active_view_viewenum == wbd_global.ViewEnum.question_view:
+                question_title_qlabel.hide()
                 date_str = datetime.datetime.fromtimestamp(diary_entry.date_added_it).strftime(
                     date_string_format_str)
                 if old_date_str == date_str:
-                    left_qlabel.setText("")
+                    time_qlabel.setText("")
                 elif is_same_day(diary_entry.date_added_it, time.time()):
-                    left_qlabel.setText("Today")
+                    time_qlabel.setText("Today")
                 else:
-                    left_qlabel.setText(date_str)
+                    time_qlabel.setText(date_str)
                 old_date_str = date_str
             elif wbd_global.active_view_viewenum == wbd_global.ViewEnum.daily_overview:
+                time_qlabel.setText("")  # -TODO: Set this to hour and perhaps minute as well
                 if diary_entry.question_ref_it != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
                     questionm = wbd.model.QuestionM.get(diary_entry.question_ref_it)
                     question_title_sg = str(questionm.title_str)
-                    left_qlabel = QtWidgets.QLabel(question_title_sg)
+                    # left_qlabel = QtWidgets.QLabel(question_title_sg)
+                    question_title_qlabel.setText(question_title_sg)
                 else:
-                    left_qlabel = QtWidgets.QLabel("")
                     pass
             else:
                 pass
 
-            hbox_l6.addWidget(left_qlabel, stretch=1)
+            hbox_l6.addWidget(time_qlabel, stretch=1)
 
             formatted_label_text_sg = label_text_sg
             if wbd_global.active_view_viewenum == wbd_global.ViewEnum.search_view:
                 formatted_label_text_sg = re.sub("(" + wbd.wbd_global.search_string_str + ")",
                     r"<b>\1</b>", formatted_label_text_sg)
+            if question_title_sg:
+                formatted_label_text_sg = "<i>" + question_title_sg + " </i>" + formatted_label_text_sg
             formatted_label_text_sg = '<p style="font-size:'\
                 + str(wbd.wbd_global.diary_text_size_ft) + 'pt;">'\
                 + formatted_label_text_sg + "</p>"
