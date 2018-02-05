@@ -501,7 +501,6 @@ class DiaryEntryM:
 
     @staticmethod
     def get_all_for_search_term(i_search_term_str: str, i_page_number_int: int):
-        t_direction_sg = "ASC"
         ret_diary_list = []
         db_connection = DbHelperM.get_db_connection()
         db_cursor = db_connection.cursor()
@@ -509,7 +508,7 @@ class DiaryEntryM:
             "SELECT * FROM " + DbSchemaM.DiaryEntryTable.name
             + " WHERE " + DbSchemaM.DiaryEntryTable.Cols.diary_entry
             + " LIKE " + '"%' + i_search_term_str + '%"'
-            + " ORDER BY " + DbSchemaM.DiaryEntryTable.Cols.date_added + " " + t_direction_sg
+            + " ORDER BY " + DbSchemaM.DiaryEntryTable.Cols.date_added + " DESC "
             + " LIMIT " + str(wbd.wbd_global.diary_entries_per_page_int)
             + " OFFSET " + str(i_page_number_int * wbd.wbd_global.diary_entries_per_page_int)
         )
@@ -517,17 +516,20 @@ class DiaryEntryM:
         for diary_db_te in diary_db_te_list:
             ret_diary_list.append(DiaryEntryM(*diary_db_te))
         db_connection.commit()
+
+        ret_diary_list.reverse()
+
         return ret_diary_list
 
     @staticmethod
-    def get_all_for_question(i_question_id_it, i_page_number_int: int, i_reverse_bl=False):
+    def get_all_for_question(i_question_id_it, i_page_number_int: int):
         ret_diary_list = []
         db_connection = DbHelperM.get_db_connection()
         db_cursor = db_connection.cursor()
         db_cursor_result = db_cursor.execute(
             "SELECT * FROM " + DbSchemaM.DiaryEntryTable.name
             + " WHERE " + DbSchemaM.DiaryEntryTable.Cols.question_ref + "=" + str(i_question_id_it)
-            + " ORDER BY " + DbSchemaM.DiaryEntryTable.Cols.date_added
+            + " ORDER BY " + DbSchemaM.DiaryEntryTable.Cols.date_added + " DESC "
             + " LIMIT " + str(wbd.wbd_global.diary_entries_per_page_int)
             + " OFFSET " + str(i_page_number_int * wbd.wbd_global.diary_entries_per_page_int)
         )
@@ -536,8 +538,8 @@ class DiaryEntryM:
             ret_diary_list.append(DiaryEntryM(*diary_db_te))
         db_connection.commit()
 
-        if i_reverse_bl:
-            ret_diary_list.reverse()
+        ret_diary_list.reverse()
+
         return ret_diary_list
 
     @staticmethod
