@@ -193,30 +193,32 @@ class DiaryListCompositeWidget(QtWidgets.QWidget):
             self.scroll_list_vbox_l5.addLayout(hbox_l6)
 
             date_string_format_str = "%A"  # -weekday
-            if diary_entry.date_added_it < time.time() - 60 * 60 * 24 * 7:
+            if wbd_global.active_view_viewenum == wbd_global.ViewEnum.daily_overview:
+                date_string_format_str = "%H:%M"  # -weekday
+            elif diary_entry.date_added_it < time.time() - 60 * 60 * 24 * 7:
                 date_string_format_str = "%-d %b"  # -weekday
+            date_str = datetime.datetime.fromtimestamp(diary_entry.date_added_it).strftime(
+                date_string_format_str)
 
             time_qlabel = QtWidgets.QLabel("")
-            question_title_qlabel = QtWidgets.QLabel("")
             question_title_sg = ""
+
+            if old_date_str == date_str:
+                time_qlabel.setText("")
+            elif (is_same_day(diary_entry.date_added_it, time.time())
+            and wbd_global.active_view_viewenum != wbd_global.ViewEnum.daily_overview):
+                time_qlabel.setText("Today")
+            else:
+                time_qlabel.setText(date_str)
+            old_date_str = date_str
+
             if wbd_global.active_view_viewenum == wbd_global.ViewEnum.question_view:
-                question_title_qlabel.hide()
-                date_str = datetime.datetime.fromtimestamp(diary_entry.date_added_it).strftime(
-                    date_string_format_str)
-                if old_date_str == date_str:
-                    time_qlabel.setText("")
-                elif is_same_day(diary_entry.date_added_it, time.time()):
-                    time_qlabel.setText("Today")
-                else:
-                    time_qlabel.setText(date_str)
-                old_date_str = date_str
+                pass
             elif wbd_global.active_view_viewenum == wbd_global.ViewEnum.daily_overview:
-                time_qlabel.setText("")  # -TODO: Set this to hour and perhaps minute as well
                 if diary_entry.question_ref_it != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
                     questionm = wbd.model.QuestionM.get(diary_entry.question_ref_it)
                     question_title_sg = str(questionm.title_str)
                     # left_qlabel = QtWidgets.QLabel(question_title_sg)
-                    question_title_qlabel.setText(question_title_sg)
                 else:
                     pass
             else:
