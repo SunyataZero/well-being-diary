@@ -65,6 +65,8 @@ class CompositeCentralWidget(QtWidgets.QWidget):
         self.prev_page_qpb.setFixedWidth(30)
         self.prev_page_qpb.clicked.connect(self.on_prev_page_button_clicked)
         hbox_l3.addWidget(self.prev_page_qpb)
+        self.page_number_qll = QtWidgets.QLabel()
+        hbox_l3.addWidget(self.page_number_qll)
         self.next_page_qpb = QtWidgets.QPushButton(">")
         self.next_page_qpb.setFixedWidth(30)
         self.next_page_qpb.clicked.connect(self.on_next_page_button_clicked)
@@ -153,10 +155,12 @@ class CompositeCentralWidget(QtWidgets.QWidget):
 
     def on_next_page_button_clicked(self):
         wbd.wbd_global.current_page_number_int += 1
+        # TODO: Find the max page and check so that we don't exceed this number
         self.update_gui()
 
     def on_prev_page_button_clicked(self):
-        wbd.wbd_global.current_page_number_int -= 1
+        if wbd.wbd_global.current_page_number_int > 0:
+            wbd.wbd_global.current_page_number_int -= 1
         self.update_gui()
 
     def on_view_radio_button_toggled(self):
@@ -173,6 +177,8 @@ class CompositeCentralWidget(QtWidgets.QWidget):
 
     def update_gui(self):
         self.updating_gui_bool = True
+
+        self.page_number_qll.setText(str(wbd.wbd_global.current_page_number_int + 1))
 
         if wbd.wbd_global.active_view_viewenum == wbd.wbd_global.ViewEnum.daily_overview:
             self.view_type_qll.setText("<h3>Daily Overview</h3>")
