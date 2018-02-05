@@ -1,4 +1,6 @@
 Eliane_bwb_draft_01.jpg
-bwb_database_file*
+*.db
+*.bak
 exported.csv
-**/.idea/workspace.xml **/.idea/tasks.xml
+**/.idea/workspace.xml
+**/.idea/tasks.xml

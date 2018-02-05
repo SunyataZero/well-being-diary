@@ -3,14 +3,14 @@ import time
 import logging
 import re
 
-import wbd.date_time_dialog
+import wbd.gui.date_time_dialog
 import wbd.model
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
 from wbd import wbd_global
-import wbd.question_selection_dialog
+import wbd.gui.question_selection_dialog
 
 
 MY_WIDGET_NAME_STR = "test-name"
@@ -104,7 +104,7 @@ class DiaryListCompositeWidget(QtWidgets.QWidget):
         self.update_gui()
 
     def on_context_menu_change_question(self):
-        question_id_result_int = wbd.question_selection_dialog.QuestionSelectionDialog.get_question_selection_dialog()
+        question_id_result_int = wbd.gui.question_selection_dialog.QuestionSelectionDialog.get_question_selection_dialog()
         if question_id_result_int is not None:
             wbd.model.DiaryEntryM.update_question(int(self.last_entry_clicked_id_it), question_id_result_int)
             self.update_gui()
@@ -139,7 +139,7 @@ class DiaryListCompositeWidget(QtWidgets.QWidget):
     def on_context_menu_change_date(self):
         last_clicked_row_dbkey_it = int(self.last_entry_clicked_id_it)
         diary_item = wbd.model.DiaryEntryM.get(last_clicked_row_dbkey_it)
-        updated_time_unix_time_it = wbd.date_time_dialog.DateTimeDialog.get_date_time_dialog(diary_item.date_added_it)
+        updated_time_unix_time_it = wbd.gui.date_time_dialog.DateTimeDialog.get_date_time_dialog(diary_item.date_added_it)
         if updated_time_unix_time_it != -1:
             wbd.model.DiaryEntryM.update_date(diary_item.id, updated_time_unix_time_it)
             self.update_gui()

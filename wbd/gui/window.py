@@ -6,15 +6,15 @@ from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
-import wbd.calendar
-import wbd.central
+import wbd.gui.calendar
+import wbd.gui.central
 import wbd.model
-import wbd.questions
-import wbd.wisdom
+import wbd.gui.questions
+import wbd.gui.wisdom
 import wbd.wbd_global
-import wbd.quotes
-import wbd.reminders
-import wbd.search_and_tags
+import wbd.gui.quotes
+import wbd.gui.reminders
+import wbd.gui.search_and_tags
 
 
 class EventSource(enum.Enum):
@@ -57,7 +57,7 @@ class WellBeingWindow(QtWidgets.QMainWindow):
         calendar_dock_qdw2 = QtWidgets.QDockWidget("Calendar", self)
         calendar_dock_qdw2.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea)
         calendar_dock_qdw2.setFeatures(QtWidgets.QDockWidget.NoDockWidgetFeatures)
-        self.custom_calendar_w3 = wbd.calendar.CompositeCalendarWidget()
+        self.custom_calendar_w3 = wbd.gui.calendar.CompositeCalendarWidget()
         self.custom_calendar_w3.setFixedHeight(240)
         self.custom_calendar_w3.calendar_widget.selectionChanged.connect(self.on_calendar_selection_changed)
         self.custom_calendar_w3.calendar_widget.currentPageChanged.connect(self.on_calendar_page_changed)
@@ -68,14 +68,14 @@ class WellBeingWindow(QtWidgets.QMainWindow):
         self.questions_dock_qw2.setFeatures(
             QtWidgets.QDockWidget.DockWidgetMovable |
             QtWidgets.QDockWidget.DockWidgetFloatable)
-        self.questions_composite_w3 = wbd.questions.PracticeCompositeWidget()
+        self.questions_composite_w3 = wbd.gui.questions.PracticeCompositeWidget()
         self.questions_composite_w3.item_selection_changed_signal.connect(self.on_practice_item_selection_changed)
         self.questions_composite_w3.current_row_changed_signal.connect(self.on_question_current_row_changed)
         self.questions_dock_qw2.setWidget(self.questions_composite_w3)
 
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.questions_dock_qw2)
         # ..central widget (which **holds the diary** etc)
-        self.central_widget_w3 = wbd.central.CompositeCentralWidget()
+        self.central_widget_w3 = wbd.gui.central.CompositeCentralWidget()
         self.setCentralWidget(self.central_widget_w3)
         self.central_widget_w3.journal_button_toggled_signal.connect(self.update_gui)
         self.central_widget_w3.text_added_to_diary_signal.connect(self.update_gui)
@@ -94,20 +94,20 @@ class WellBeingWindow(QtWidgets.QMainWindow):
 
         # ..reminders
         reminders_dock_qw2 = QtWidgets.QDockWidget("Reminders", self)
-        self.reminders_composite_w3 = wbd.reminders.CompositeRemindersWidget()
+        self.reminders_composite_w3 = wbd.gui.reminders.CompositeRemindersWidget()
         reminders_dock_qw2.setWidget(self.reminders_composite_w3)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, reminders_dock_qw2)
         reminders_dock_qw2.setAllowedAreas(QtCore.Qt.RightDockWidgetArea)
         reminders_dock_qw2.setFixedHeight(300)  # TODO: Change to dynamic
         # ..quotes
         quotes_dock_qw2 = QtWidgets.QDockWidget("Quotes", self)
-        self.quotes_composite_w3 = wbd.quotes.CompositeQuotesWidget()
+        self.quotes_composite_w3 = wbd.gui.quotes.CompositeQuotesWidget()
         quotes_dock_qw2.setWidget(self.quotes_composite_w3)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, quotes_dock_qw2)
         quotes_dock_qw2.setAllowedAreas(QtCore.Qt.RightDockWidgetArea | QtCore.Qt.LeftDockWidgetArea)
         # ..tags
         tags_dock_qw2 = QtWidgets.QDockWidget("Search and Tags", self)
-        self.tags_composite_w3 = wbd.search_and_tags.SearchAndTagsCompositeWidget()
+        self.tags_composite_w3 = wbd.gui.search_and_tags.SearchAndTagsCompositeWidget()
         self.tags_composite_w3.search_text_changed_signal.connect(self.on_search_text_changed)
         tags_dock_qw2.setWidget(self.tags_composite_w3)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, tags_dock_qw2)

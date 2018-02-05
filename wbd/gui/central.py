@@ -1,5 +1,5 @@
 import logging
-import wbd.diary
+import wbd.gui.diary
 import wbd.model
 
 from PyQt5 import QtCore
@@ -68,7 +68,7 @@ class CompositeCentralWidget(QtWidgets.QWidget):
         hbox_l3.addWidget(self.next_page_qpb)
 
         # **Adding the diary list**
-        self.diary_widget = wbd.diary.DiaryListCompositeWidget()
+        self.diary_widget = wbd.gui.diary.DiaryListCompositeWidget()
         ##diary_widget.add_text_to_diary_button_pressed_signal.connect(self.on_diary_add_entry_button_pressed)
         self.diary_widget.context_menu_change_date_signal.connect(self.on_diary_context_menu_change_date)
         self.diary_widget.context_menu_delete_signal.connect(self.on_diary_context_menu_delete)

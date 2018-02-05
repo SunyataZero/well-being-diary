@@ -7,7 +7,7 @@ from PyQt5 import QtWidgets
 from PyQt5 import QtGui
 
 import wbd.wbd_global
-import wbd.safe_confirmation_dialog
+import wbd.gui.safe_confirmation_dialog
 
 
 class PracticeCompositeWidget(QtWidgets.QWidget):
@@ -157,7 +157,7 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
     def on_context_menu_delete(self):
         if self.last_entry_clicked_id_int != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
             active_question = wbd.model.QuestionM.get(wbd.wbd_global.active_question_id_it)
-            conf_result_bool = wbd.safe_confirmation_dialog.SafeConfirmationDialog.get_safe_confirmation_dialog(
+            conf_result_bool = wbd.gui.safe_confirmation_dialog.SafeConfirmationDialog.get_safe_confirmation_dialog(
                 "Are you sure that you want to remove this entry?<br><i>Please type the name to confirm</i>",
                 active_question.title_str
             )

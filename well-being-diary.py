@@ -9,8 +9,7 @@ from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
-import wbd.wbd_global
-import wbd.window
+import wbd.gui.window
 
 
 if __name__ == "__main__":
@@ -20,10 +19,9 @@ if __name__ == "__main__":
     argument_parser.add_argument("--testing", "-t", help="Testing - data saved in memory only", action="store_true")
     # -for info about "store_true" please search here: https://docs.python.org/3/howto/argparse.html
     args = argument_parser.parse_args()
+    wbd.wbd_global.testing_bool = False
     if args.testing:
         wbd.wbd_global.testing_bool = True
-    else:
-        wbd.wbd_global.testing_bool = False
 
     # ..configuration file
     config = configparser.ConfigParser()
@@ -34,7 +32,7 @@ if __name__ == "__main__":
     # === Creating the main window ===
     app = QtWidgets.QApplication(sys.argv)
     # -"QWidget: Must construct a QApplication before a QWidget"
-    main_window = wbd.window.WellBeingWindow()
+    main_window = wbd.gui.window.WellBeingWindow()
 
     # System tray
     tray_icon = QtWidgets.QSystemTrayIcon(QtGui.QIcon("icon.png"), app)
