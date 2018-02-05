@@ -33,22 +33,22 @@ class CompositeCentralWidget(QtWidgets.QWidget):
 
         hbox_l3 = QtWidgets.QHBoxLayout()
         self.vbox_l2.addLayout(hbox_l3)
-        self.diary_label = QtWidgets.QLabel()
-        hbox_l3.addWidget(self.diary_label)
+        self.view_type_qll = QtWidgets.QLabel()
+        hbox_l3.addWidget(self.view_type_qll)
 
         hbox_l3.addStretch()
         self.view_radio_qbuttongroup = QtWidgets.QButtonGroup(self)
         # noinspection PyUnresolvedReferences
         self.view_radio_qbuttongroup.buttonToggled.connect(self.on_view_radio_button_toggled)
-        self.day_view_qrb = QtWidgets.QRadioButton("Daily overview")
+        self.day_view_qrb = QtWidgets.QRadioButton("Daily Overview")
         self.view_radio_qbuttongroup.addButton(
             self.day_view_qrb,
             wbd.wbd_global.ViewEnum.diary_daily_overview.value)
         hbox_l3.addWidget(self.day_view_qrb)
-        self.monthly_view_qrb = QtWidgets.QRadioButton("Monthly question view")
-        hbox_l3.addWidget(self.monthly_view_qrb)
+        self.question_view_qrb = QtWidgets.QRadioButton("Question View")
+        hbox_l3.addWidget(self.question_view_qrb)
         self.view_radio_qbuttongroup.addButton(
-            self.monthly_view_qrb,
+            self.question_view_qrb,
             wbd.wbd_global.ViewEnum.journal_monthly_view.value)
         self.search_view_qrb = QtWidgets.QRadioButton("Search")
         self.view_radio_qbuttongroup.addButton(
@@ -77,14 +77,22 @@ class CompositeCentralWidget(QtWidgets.QWidget):
 
         # Adding new diary entry..
         adding_area_hbox_l3 = QtWidgets.QHBoxLayout()
+        # ..title
+        self.question_title_qll = QtWidgets.QLabel()
+        self.vbox_l2.addWidget(self.question_title_qll)
+        new_font = QtGui.QFont()
+        new_font.setPointSize(16)
+        self.question_title_qll.setFont(new_font)
+        self.question_title_qll.setWordWrap(True)
+        # self.question_label.setFixedWidth(200)
         # ..question
-        self.question_label = QtWidgets.QLabel()
+        self.question_descr_qll = QtWidgets.QLabel()
         new_font = QtGui.QFont()
         new_font.setPointSize(11)
-        self.question_label.setFont(new_font)
-        self.question_label.setWordWrap(True)
+        self.question_descr_qll.setFont(new_font)
+        self.question_descr_qll.setWordWrap(True)
         # self.question_label.setFixedWidth(200)
-        self.vbox_l2.addWidget(self.question_label)
+        self.vbox_l2.addWidget(self.question_descr_qll)
         # ..text input area
         self.adding_text_to_diary_textedit_w6 = CustomQTextEdit(self)
         new_font = QtGui.QFont()
@@ -155,13 +163,16 @@ class CompositeCentralWidget(QtWidgets.QWidget):
 
     def update_gui(self):
         if wbd.wbd_global.active_view_viewenum == wbd.wbd_global.ViewEnum.journal_monthly_view:
+            self.view_type_qll.setText("<h3>Question View</h3>")
+            """
             if wbd.wbd_global.active_question_id_it != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
                 active_journalm = wbd.model.QuestionM.get(wbd.wbd_global.active_question_id_it)
-                self.diary_label.setText("<h3>" + active_journalm.title_str + "</h3>")
+                self.view_type_qll.setText("<h3>" + active_journalm.title_str + "</h3>")
+            """
         elif wbd.wbd_global.active_view_viewenum == wbd.wbd_global.ViewEnum.search_view:
             pass
         elif wbd.wbd_global.active_view_viewenum == wbd.wbd_global.ViewEnum.diary_daily_overview:
-            self.diary_label.setText("<h3>Daily Overview</h3>")
+            self.view_type_qll.setText("<h3>Daily Overview</h3>")
         else:
             raise Exception("Should not be able to get here")
 

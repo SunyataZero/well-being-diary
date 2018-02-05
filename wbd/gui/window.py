@@ -126,22 +126,22 @@ class WellBeingWindow(QtWidgets.QMainWindow):
         manual_qaction = QtWidgets.QAction("Manual", self)
         backup_qaction = QtWidgets.QAction("Backup db", self)
         backup_qaction.triggered.connect(wbd.model.backup_db_file)
-        dear_buddha_qaction = QtWidgets.QAction("Prepend diary entries with \"Dear Buddha\"", self)
-        dear_buddha_qaction.triggered.connect(self.toggle_dear_buddha_text)
+        ### dear_buddha_qaction = QtWidgets.QAction("Prepend diary entries with \"Dear Buddha\"", self)
+        ### dear_buddha_qaction.triggered.connect(self.toggle_dear_buddha_text)
         quotes_window_qaction = quotes_dock_qw2.toggleViewAction()
         reminder_window_qaction = reminders_dock_qw2.toggleViewAction()
         # ..adding menu items
         self.menu_bar = self.menuBar()
         file_menu = self.menu_bar.addMenu("&File")
         debug_menu = self.menu_bar.addMenu("Debu&g")
-        tools_menu = self.menu_bar.addMenu("&Tools")
+        ### tools_menu = self.menu_bar.addMenu("&Tools")
         help_menu = self.menu_bar.addMenu("&Help")
         window_menu = self.menu_bar.addMenu("&Window")
         file_menu.addAction(export_qaction)
+        file_menu.addAction(backup_qaction)
         file_menu.addAction(exit_qaction)
         debug_menu.addAction(redraw_qaction)
-        debug_menu.addAction(backup_qaction)
-        tools_menu.addAction(dear_buddha_qaction)
+        ### tools_menu.addAction(dear_buddha_qaction)
         help_menu.addAction(about_qaction)
         help_menu.addAction(manual_qaction)
         window_menu.addAction(quotes_window_qaction)
@@ -245,9 +245,11 @@ class WellBeingWindow(QtWidgets.QMainWindow):
 
         if wbd.wbd_global.active_question_id_it is not None:
             question = wbd.model.QuestionM.get(wbd.wbd_global.active_question_id_it)
-            self.central_widget_w3.question_label.setText(question.question_str)
+            self.central_widget_w3.question_title_qll.setText(question.title_str)
+            self.central_widget_w3.question_descr_qll.setText(question.question_str)
         else:
-            self.central_widget_w3.question_label.setText("<i>empty</i>")
+            self.central_widget_w3.question_title_qll.setText("<i>title empty</i>")
+            self.central_widget_w3.question_descr_qll.setText("<i>descr. empty</i>")
 
         self.update_gui(EventSource.obs_current_row_changed)
 
