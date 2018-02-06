@@ -119,8 +119,17 @@ def upgrade_1_2(i_db_conn):
 """
 
 
+def upgrade_1_2(i_db_conn):
+    backup_db_file()
+    i_db_conn.execute(
+        "ALTER TABLE " + DbSchemaM.QuestionTable.name + " ADD COLUMN "
+        + DbSchemaM.QuestionTable.Cols.hour + " INTEGER DEFAULT " + str(TIME_NOT_SET)
+    )
+
+
 upgrade_steps = {
     1: initial_schema_and_setup,
+    2: upgrade_1_2,
 }
 
 
@@ -161,6 +170,7 @@ class DbSchemaM:
             title = "title"
             question = "question"
             archived = "archived"
+            hour = "hour"
 
     class DiaryEntryTable:
         name = "diary_entry"
@@ -182,12 +192,15 @@ class DbSchemaM:
 
 
 class QuestionM:
-    def __init__(self, i_id: int, i_order: int, i_title: str, i_question: str, i_archived: bool=False) -> None:
+    def __init__(
+    self, i_id: int, i_order: int, i_title: str, i_question: str, i_archived: bool, i_hour: int
+    ) -> None:
         self.id_int = i_id
         self.sort_order_int = i_order
         self.title_str = i_title
         self.question_str = i_question
         self.archived_bl = i_archived
+        self.hour_int = i_hour
 
     @staticmethod
     def add(i_title_str: str, i_question_str: str) -> int:
@@ -250,6 +263,18 @@ class QuestionM:
             + " SET " + DbSchemaM.QuestionTable.Cols.sort_order + " = ?"
             + " WHERE " + DbSchemaM.QuestionTable.Cols.id + " = ?",
             (str(i_sort_order), str(i_id))
+        )
+        db_connection.commit()
+
+    @staticmethod
+    def update_hour(i_id_it, i_new_hour: int):
+        db_connection = DbHelperM.get_db_connection()
+        db_cursor = db_connection.cursor()
+        db_cursor.execute(
+            "UPDATE " + DbSchemaM.QuestionTable.name
+            + " SET " + DbSchemaM.QuestionTable.Cols.hour + " = ?"
+            + " WHERE " + DbSchemaM.QuestionTable.Cols.id + " = ?",
+            (str(i_new_hour), str(i_id_it))
         )
         db_connection.commit()
 

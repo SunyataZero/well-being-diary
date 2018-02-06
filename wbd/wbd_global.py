@@ -6,14 +6,28 @@ storing other types of values
 """
 
 import enum
-
+import os
 from PyQt5 import QtCore
+
+
+ICONS_DIR_STR = "icons"
 
 
 class ViewEnum(enum.Enum):
     daily_overview = 0
     question_view = 1
     search_view = 2
+
+
+def get_base_dir() -> str:
+    base_dir_str = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    # -__file__ is the file that was started, in other words mindfulness-at-the-computer.py
+    return base_dir_str
+
+
+def get_icon_path(i_file_name: str) -> str:
+    ret_icon_path_str = os.path.join(get_base_dir(), ICONS_DIR_STR, i_file_name)
+    return ret_icon_path_str
 
 
 diary_view_locked_bool = False

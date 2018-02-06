@@ -82,6 +82,12 @@ class CompositeCentralWidget(QtWidgets.QWidget):
 
         # Adding new diary entry..
         adding_area_hbox_l3 = QtWidgets.QHBoxLayout()
+
+
+        self.time_of_day_qte = QtWidgets.QTimeEdit()
+        adding_area_hbox_l3.addWidget(self.time_of_day_qte)
+
+
         # ..title
         self.question_title_qll = QtWidgets.QLabel()
         self.vbox_l2.addWidget(self.question_title_qll)

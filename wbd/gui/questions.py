@@ -56,10 +56,76 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
         self.show_archived_qpb.setCheckable(True)
         self.show_archived_qpb.toggled.connect(self.on_show_archived_button_toggled)
 
+
+
+        hbox_l3 = QtWidgets.QHBoxLayout()
+        vbox_l2.addLayout(hbox_l3)
+        self.edit_texts_qpb = QtWidgets.QPushButton()
+        self.edit_texts_qpb.setIcon(QtGui.QIcon(wbd.wbd_global.get_icon_path("pencil-2x.png")))
+        self.edit_texts_qpb.setToolTip(self.tr("Edit the selected question"))
+        self.edit_texts_qpb.clicked.connect(self.on_edit_clicked)
+        hbox_l3.addWidget(self.edit_texts_qpb)
+        """
+        self.move_to_top_qpb = QtWidgets.QPushButton()
+        self.move_to_top_qpb.setIcon(QtGui.QIcon(wbd.wbd_global.get_icon_path("data-transfer-upload-2x.png")))
+        self.move_to_top_qpb.setToolTip(self.tr("Move the selected breathing phrase to top"))
+        self.move_to_top_qpb.clicked.connect(self.on_move_to_top_clicked)        
+        hbox_l3.addWidget(self.move_to_top_qpb)
+        """
+        self.move_up_qpb = QtWidgets.QPushButton()
+        self.move_up_qpb.setIcon(QtGui.QIcon(wbd.wbd_global.get_icon_path("arrow-top-2x.png")))
+        self.move_up_qpb.setToolTip(self.tr("Move the selected breathing phrase up"))
+        self.move_up_qpb.clicked.connect(self.on_context_menu_move_up)
+        hbox_l3.addWidget(self.move_up_qpb)
+        self.move_down_qpb = QtWidgets.QPushButton()
+        self.move_down_qpb.setIcon(QtGui.QIcon(wbd.wbd_global.get_icon_path("arrow-bottom-2x.png")))
+        self.move_down_qpb.setToolTip(self.tr("Move the selected breathing phrase down"))
+        self.move_down_qpb.clicked.connect(self.on_context_menu_move_down)
+        hbox_l3.addWidget(self.move_down_qpb)
+        hbox_l3.addStretch(1)
+
+        self.archive_phrase_qpb = QtWidgets.QPushButton()
+        self.archive_phrase_qpb.setIcon(QtGui.QIcon(wbd.wbd_global.get_icon_path("box-2x.png")))
+        self.archive_phrase_qpb.setToolTip(self.tr("Archive the selected question"))
+        self.archive_phrase_qpb.clicked.connect(self.on_context_menu_archive)
+        hbox_l3.addWidget(self.archive_phrase_qpb)
+
+        self.delete_phrase_qpb = QtWidgets.QPushButton()
+        self.delete_phrase_qpb.setIcon(QtGui.QIcon(wbd.wbd_global.get_icon_path("trash-2x.png")))
+        self.delete_phrase_qpb.setToolTip(self.tr("Delete the selected breathing phrase"))
+        self.delete_phrase_qpb.clicked.connect(self.on_context_menu_delete)
+        hbox_l3.addWidget(self.delete_phrase_qpb)
+
     """
     def on_indexes_moved(self, i_indexes_moved):
         logging.debug("on_indexes_moved, i_indexes_moved = " + str(i_indexes_moved))
     """
+
+    def on_edit_clicked(self):
+        id_int = wbd.wbd_global.active_question_id_it
+        if id_int != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
+            self.edit_dialog = EditDialog()
+            self.edit_dialog.finished.connect(self.on_edit_dialog_finished)
+            self.edit_dialog.show()
+
+    def on_edit_dialog_finished(self, i_result: int):
+        if i_result == QtWidgets.QDialog.Accepted:
+            # assert mc.mc_global.active_phrase_id_it != wbd.wbd_global.NO_PHRASE_SELECTED_INT
+            # question = wbd.model.QuestionM.get(wbd.wbd_global.active_question_id_it)
+            wbd.model.QuestionM.update_title(
+                wbd.wbd_global.active_question_id_it,
+                self.edit_dialog.question_title_qle.text()
+            )
+            hour_int = self.edit_dialog.hour_qte.time().hour()
+            wbd.model.QuestionM.update_hour(wbd.wbd_global.active_question_id_it, hour_int)
+            wbd.model.QuestionM.update_description(
+                wbd.wbd_global.active_question_id_it,
+                self.edit_dialog.description_qle.text()
+            )
+        else:
+            pass
+        ### self.phrase_changed_signal.emit(True)
+        self.update_gui()
 
     def on_internal_list_widget_drop(self):
         logging.debug("on_internal_list_widget_drop")
@@ -307,9 +373,12 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
             row_item = QtWidgets.QListWidgetItem()
 
             question_title_str = question.title_str
+            if question.hour_int != wbd.model.TIME_NOT_SET:
+                hour_str = str(question.hour_int).zfill(2)
+                question_title_str = "[" + hour_str + "] " + question_title_str
             all_for_active_day_list = wbd.model.DiaryEntryM.get_for_question_and_active_day(question.id_int)
             if len(all_for_active_day_list) > 0:
-                question_title_str = "<b>" + question.title_str + "</b>"
+                question_title_str = "<b>" + question_title_str + "</b>"
 
             question_title_qll = CustomQLabel(question_title_str, question.id_int)
             question_title_qll.mouse_pressed_signal.connect(
@@ -354,5 +423,61 @@ class CustomListWidget(QtWidgets.QListWidget):
         self.drop_signal.emit()
         logging.debug("CustomListWidget - dropEvent")
 
+
+class EditDialog(QtWidgets.QDialog):
+    """
+    Inspiration: Answer by lou here:
+    https://stackoverflow.com/questions/18196799/how-can-i-show-a-pyqt-modal-dialog-and-get-data-out-of-its-controls-once-its-clo
+    """
+    def __init__(self, i_parent=None):
+        super(EditDialog, self).__init__(i_parent)
+
+        self.setModal(True)
+
+        self.updating_gui_bool = False
+
+        """
+        # If a phrase is not selected, default to phrase with id 1
+        if mc.mc_global.active_phrase_id_it == mc.mc_global.NO_PHRASE_SELECTED_INT:
+            mc.mc_global.active_phrase_id_it = 1
+        """
+
+        question = wbd.model.QuestionM.get(wbd.wbd_global.active_question_id_it)
+
+        vbox = QtWidgets.QVBoxLayout(self)
+
+        vbox.addWidget(QtWidgets.QLabel(self.tr("Title")))
+        self.question_title_qle = QtWidgets.QLineEdit(question.title_str)
+        vbox.addWidget(self.question_title_qle)
+
+        vbox.addWidget(QtWidgets.QLabel(self.tr("Description")))
+        self.description_qle = QtWidgets.QLineEdit(question.question_str)
+        vbox.addWidget(self.description_qle)
+
+        vbox.addWidget(QtWidgets.QLabel(self.tr("Hour")))
+        self.hour_qte = QtWidgets.QTimeEdit()
+        self.hour_qte.setTime(question.hour_int)
+        vbox.addWidget(self.hour_qte)
+
+        self.button_box = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel,
+            QtCore.Qt.Horizontal,
+            self
+        )
+        vbox.addWidget(self.button_box)
+        self.button_box.accepted.connect(self.accept)
+        self.button_box.rejected.connect(self.reject)
+        # -accept and reject are "slots" built into Qt
+
+        self.update_gui()
+
+    # def on_hour_changed(self):
+
+    def update_gui(self):
+        self.updating_gui_bool = True
+
+        self.adjustSize()
+
+        self.updating_gui_bool = False
 
 
