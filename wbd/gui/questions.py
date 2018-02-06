@@ -30,7 +30,9 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
         # ..for ten practices (left column)
         ##habits_label = QtWidgets.QLabel("<h3>Journals</h3>")
         ##vbox_l2.addWidget(habits_label)
-        self.list_widget = QtWidgets.QListWidget()
+        self.list_widget = CustomListWidget()
+        self.list_widget.setDragDropMode(QtWidgets.QAbstractItemView.InternalMove)
+        self.list_widget.drop_signal.connect(self.on_internal_list_widget_drop)
         ###self.list_widget.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         vbox_l2.addWidget(self.list_widget)
         self.list_widget.currentRowChanged.connect(self.on_current_row_changed)
@@ -54,9 +56,67 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
         self.show_archived_qpb.setCheckable(True)
         self.show_archived_qpb.toggled.connect(self.on_show_archived_button_toggled)
 
+    """
+    def on_indexes_moved(self, i_indexes_moved):
+        logging.debug("on_indexes_moved, i_indexes_moved = " + str(i_indexes_moved))
+    """
+
+    def on_internal_list_widget_drop(self):
+        logging.debug("on_internal_list_widget_drop")
+        self.update_sort_order_for_all_rows()
+
     def on_show_archived_button_toggled(self, i_new_state_bool):
         self.show_archived_questions_bool = i_new_state_bool
         self.update_gui()
+
+    def update_sort_order_for_all_rows(self):
+        count = 0
+        while count < self.list_widget.count():
+            q_list_item_widget = self.list_widget.item(count)
+            custom_label = self.list_widget.itemWidget(q_list_item_widget)
+            id_int = custom_label.question_entry_id
+            row_int = self.list_widget.row(q_list_item_widget)
+            wbd.model.QuestionM.update_sort_order(
+                id_int,
+                row_int
+            )
+            count += 1
+
+    def move_current_row_up_down(self, i_move_direction: wbd.wbd_global.MoveDirectionEnum) -> None:
+        """
+        There is a swap of the sort order value with the question above or below which means that the
+        archived questions can keep their sort orders (the previous solution was to inc/dec the sort
+        order value)
+        """
+        current_item_row_nr_int = self.list_widget.currentRow()
+        current_item = self.list_widget.takeItem(current_item_row_nr_int)
+        if i_move_direction == wbd.wbd_global.MoveDirectionEnum.up:
+            # if main_sort_order_int == 0 or main_sort_order_int > len(QuestionM.get_all()):
+            if current_item_row_nr_int > 0:
+                self.list_widget.insertItem(current_item_row_nr_int - 1, current_item)
+                self.list_widget.setCurrentRow(current_item_row_nr_int - 1)
+        elif i_move_direction == wbd.wbd_global.MoveDirectionEnum.down:
+            # if main_sort_order_int < 0 or main_sort_order_int >= len(QuestionM.get_all()):
+            if current_item_row_nr_int < self.list_widget.count() - 1:
+                self.list_widget.insertItem(current_item_row_nr_int + 1, current_item)
+                self.list_widget.setCurrentRow(current_item_row_nr_int + 1)
+
+    """
+            row_item = QtWidgets.QListWidgetItem()
+
+            question_title_str = question.title_str
+            all_for_active_day_list = wbd.model.DiaryEntryM.get_for_question_and_active_day(question.id_int)
+            if len(all_for_active_day_list) > 0:
+                question_title_str = "<b>" + question.title_str + "</b>"
+
+            question_title_qll = CustomQLabel(question_title_str, question.id_int)
+            question_title_qll.mouse_pressed_signal.connect(
+                self.on_list_row_label_mouse_pressed
+            )
+            self.list_widget.addItem(row_item)
+            self.list_widget.setItemWidget(row_item, question_title_qll)
+
+    """
 
     # noinspection PyUnresolvedReferences
     def contextMenuEvent(self, i_qcontextmenuevent):
@@ -88,6 +148,7 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
             archive_action.triggered.connect(self.on_context_menu_archive)
             self.right_click_menu.addAction(archive_action)
 
+        """
         if not self.show_archived_qpb.isChecked():
             move_up_action = QtWidgets.QAction("Move up")
             move_up_action.triggered.connect(self.on_context_menu_move_up)
@@ -97,17 +158,28 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
             move_down_action = QtWidgets.QAction("Move down")
             move_down_action.triggered.connect(self.on_context_menu_move_down)
             self.right_click_menu.addAction(move_down_action)
+        """
 
         self.right_click_menu.exec_(QtGui.QCursor.pos())
 
     def on_context_menu_move_up(self):
+        """
         wbd.model.QuestionM.update_active_sort_order_move_up_down(
             self.last_entry_clicked_id_int, wbd.model.MoveDirectionEnum.up)
+        """
+        self.move_current_row_up_down(wbd.wbd_global.MoveDirectionEnum.up)
+        self.update_gui()  # -also here to get the sort order
+        self.update_sort_order_for_all_rows()
         self.update_gui()
 
     def on_context_menu_move_down(self):
+        """
         wbd.model.QuestionM.update_active_sort_order_move_up_down(
             self.last_entry_clicked_id_int, wbd.model.MoveDirectionEnum.down)
+        """
+        self.move_current_row_up_down(wbd.wbd_global.MoveDirectionEnum.down)
+        self.update_gui()  # -also here to get the sort order
+        self.update_sort_order_for_all_rows()
         self.update_gui()
 
     def on_context_menu_change_description(self):
@@ -268,5 +340,18 @@ class CustomQLabel(QtWidgets.QLabel):
         super(CustomQLabel, self).mousePressEvent(i_qmouseevent)
         # -self is automatically sent as the 1st argument
         self.mouse_pressed_signal.emit(i_qmouseevent, self.question_entry_id)
+
+
+class CustomListWidget(QtWidgets.QListWidget):
+    drop_signal = QtCore.pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+
+    def dropEvent(self, i_QDropEvent):
+        super().dropEvent(i_QDropEvent)
+        self.drop_signal.emit()
+        logging.debug("CustomListWidget - dropEvent")
+
 
 

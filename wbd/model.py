@@ -42,11 +42,6 @@ class QuestionSetupEnum(enum.Enum):
     self_compassion = 6
 
 
-class MoveDirectionEnum(enum.Enum):
-    up = 1
-    down = 2
-
-
 def get_schema_version(i_db_conn):
     t_cursor = i_db_conn.execute("PRAGMA user_version")
     return t_cursor.fetchone()[0]
@@ -229,31 +224,6 @@ class QuestionM:
         return QuestionM(*journal_db_te)
 
     @staticmethod
-    def get_active_by_sort_order(i_sort_order: int, i_move_direction: MoveDirectionEnum):
-
-        direction_as_lt_gt_str = ">"
-        sort_direction_str = "DESC"
-        if i_move_direction == MoveDirectionEnum.up:
-            direction_as_lt_gt_str = "<"
-            sort_direction_str = "DESC"
-        elif i_move_direction == MoveDirectionEnum.down:
-            direction_as_lt_gt_str = ">"
-            sort_direction_str = "ASC"
-
-        db_connection = DbHelperM.get_db_connection()
-        db_cursor = db_connection.cursor()
-        db_cursor_result = db_cursor.execute(
-            "SELECT * FROM " + DbSchemaM.QuestionTable.name
-            + " WHERE " + DbSchemaM.QuestionTable.Cols.sort_order + direction_as_lt_gt_str + str(i_sort_order)
-            + " AND " + DbSchemaM.QuestionTable.Cols.archived + "=" + str(SQLITE_FALSE)
-            + " ORDER BY " + DbSchemaM.QuestionTable.Cols.sort_order + " " + sort_direction_str
-        )
-        journal_db_te = db_cursor_result.fetchone()
-        db_connection.commit()
-
-        return QuestionM(*journal_db_te)
-
-    @staticmethod
     def get_all(i_show_archived_questions_bool = False):
         if i_show_archived_questions_bool:
             show_archived_questions_bool_as_int = SQLITE_TRUE
@@ -272,39 +242,14 @@ class QuestionM:
         return [QuestionM(*journal_db_te) for journal_db_te in journal_db_te_list]
 
     @staticmethod
-    def update_active_sort_order_move_up_down(i_id: int, i_move_direction: MoveDirectionEnum) -> None:
-        """
-        There is a swap of the sort order value with the question above or below which means that the
-        archived questions can keep their sort orders (the previous solution was to inc/dec the sort
-        order value)
-        """
-        main_id_int = i_id
-        main_sort_order_int = QuestionM.get(i_id).sort_order_int
-        if i_move_direction == MoveDirectionEnum.up:
-            if main_sort_order_int == 0 or main_sort_order_int > len(QuestionM.get_all()):
-                return
-        elif i_move_direction == MoveDirectionEnum.down:
-            if main_sort_order_int < 0 or main_sort_order_int >= len(QuestionM.get_all()):
-                return
-        else:
-            pass
-        other = QuestionM.get_active_by_sort_order(main_sort_order_int, i_move_direction)
-        other_id_int = other.id_int
-        other_sort_order_int = other.sort_order_int
-
+    def update_sort_order(i_id: int, i_sort_order: int) -> None:
         db_connection = DbHelperM.get_db_connection()
         db_cursor = db_connection.cursor()
         db_cursor.execute(
             "UPDATE " + DbSchemaM.QuestionTable.name
             + " SET " + DbSchemaM.QuestionTable.Cols.sort_order + " = ?"
             + " WHERE " + DbSchemaM.QuestionTable.Cols.id + " = ?",
-            (str(other_sort_order_int), str(main_id_int))
-        )
-        db_cursor.execute(
-            "UPDATE " + DbSchemaM.QuestionTable.name
-            + " SET " + DbSchemaM.QuestionTable.Cols.sort_order + " = ?"
-            + " WHERE " + DbSchemaM.QuestionTable.Cols.id + " = ?",
-            (str(main_sort_order_int), str(other_id_int))
+            (str(i_sort_order), str(i_id))
         )
         db_connection.commit()
 
@@ -569,7 +514,7 @@ class DiaryEntryM:
         return ret_diary_list
 
     @staticmethod
-    def get_for_question_and_active_day(i_question_id: int) -> QuestionM:
+    def get_for_question_and_active_day(i_question_id: int) -> list:
         start_of_day_datetime = datetime.datetime(
             year=wbd.wbd_global.active_date_qdate.year(),
             month=wbd.wbd_global.active_date_qdate.month(),

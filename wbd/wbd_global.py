@@ -51,6 +51,10 @@ def get_database_filename():
         return "bwb_database_file.db"
 
 
+class MoveDirectionEnum(enum.Enum):
+    up = 1
+    down = 2
+
 
 """
 def get_active_date():
