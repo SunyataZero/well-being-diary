@@ -63,13 +63,14 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
 
     def on_internal_list_widget_drop(self):
         logging.debug("on_internal_list_widget_drop")
-        self.update_sort_order_for_all_rows()
+        self.update_db_sort_order_for_all_rows()
 
     def on_show_archived_button_toggled(self, i_new_state_bool):
         self.show_archived_questions_bool = i_new_state_bool
         self.update_gui()
 
-    def update_sort_order_for_all_rows(self):
+    def update_db_sort_order_for_all_rows(self):
+        logging.debug("update_db_sort_order_for_all_rows")
         count = 0
         while count < self.list_widget.count():
             q_list_item_widget = self.list_widget.item(count)
@@ -80,26 +81,32 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
                 id_int,
                 row_int
             )
+            logging.debug("id_int = " + str(id_int) + ", row_int = " + str(row_int))
             count += 1
 
     def move_current_row_up_down(self, i_move_direction: wbd.wbd_global.MoveDirectionEnum) -> None:
-        """
-        There is a swap of the sort order value with the question above or below which means that the
-        archived questions can keep their sort orders (the previous solution was to inc/dec the sort
-        order value)
-        """
-        current_item_row_nr_int = self.list_widget.currentRow()
-        current_item = self.list_widget.takeItem(current_item_row_nr_int)
+        current_row_int = self.list_widget.currentRow()
+        current_list_widget_item = self.list_widget.item(current_row_int)
+        item_widget = self.list_widget.itemWidget(current_list_widget_item)
+        self.list_widget.takeItem(current_row_int)
+        # -IMPORTANT: item is removed from list only after the item widget has been extracted.
+        #  The reason for this is that if we take the item away from the list the associated
+        #  widget (in our case a CustomLabel) will not come with us (which makes sense
+        #  if the widget is stored in the list somehow)
         if i_move_direction == wbd.wbd_global.MoveDirectionEnum.up:
             # if main_sort_order_int == 0 or main_sort_order_int > len(QuestionM.get_all()):
-            if current_item_row_nr_int > 0:
-                self.list_widget.insertItem(current_item_row_nr_int - 1, current_item)
-                self.list_widget.setCurrentRow(current_item_row_nr_int - 1)
+            if current_row_int > 0:
+                self.list_widget.insertItem(current_row_int - 1, current_list_widget_item)
+                self.list_widget.setItemWidget(current_list_widget_item, item_widget)
+                self.list_widget.setCurrentRow(current_row_int - 1)
         elif i_move_direction == wbd.wbd_global.MoveDirectionEnum.down:
             # if main_sort_order_int < 0 or main_sort_order_int >= len(QuestionM.get_all()):
-            if current_item_row_nr_int < self.list_widget.count() - 1:
-                self.list_widget.insertItem(current_item_row_nr_int + 1, current_item)
-                self.list_widget.setCurrentRow(current_item_row_nr_int + 1)
+            if current_row_int < self.list_widget.count() - 1:
+                self.list_widget.insertItem(current_row_int + 1, current_list_widget_item)
+                self.list_widget.setItemWidget(current_list_widget_item, item_widget)
+                self.list_widget.setCurrentRow(current_row_int + 1)
+
+        self.update_db_sort_order_for_all_rows()
 
     """
             row_item = QtWidgets.QListWidgetItem()
@@ -148,7 +155,6 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
             archive_action.triggered.connect(self.on_context_menu_archive)
             self.right_click_menu.addAction(archive_action)
 
-        """
         if not self.show_archived_qpb.isChecked():
             move_up_action = QtWidgets.QAction("Move up")
             move_up_action.triggered.connect(self.on_context_menu_move_up)
@@ -158,7 +164,6 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
             move_down_action = QtWidgets.QAction("Move down")
             move_down_action.triggered.connect(self.on_context_menu_move_down)
             self.right_click_menu.addAction(move_down_action)
-        """
 
         self.right_click_menu.exec_(QtGui.QCursor.pos())
 
@@ -168,8 +173,6 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
             self.last_entry_clicked_id_int, wbd.model.MoveDirectionEnum.up)
         """
         self.move_current_row_up_down(wbd.wbd_global.MoveDirectionEnum.up)
-        self.update_gui()  # -also here to get the sort order
-        self.update_sort_order_for_all_rows()
         self.update_gui()
 
     def on_context_menu_move_down(self):
@@ -178,8 +181,6 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
             self.last_entry_clicked_id_int, wbd.model.MoveDirectionEnum.down)
         """
         self.move_current_row_up_down(wbd.wbd_global.MoveDirectionEnum.down)
-        self.update_gui()  # -also here to get the sort order
-        self.update_sort_order_for_all_rows()
         self.update_gui()
 
     def on_context_menu_change_description(self):
