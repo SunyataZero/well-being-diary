@@ -122,6 +122,10 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
                 wbd.wbd_global.active_question_id_it,
                 self.edit_dialog.description_qle.text()
             )
+            wbd.model.QuestionM.update_labels(
+                wbd.wbd_global.active_question_id_it,
+                self.edit_dialog.labels_qpte.toPlainText()
+            )
         else:
             pass
         ### self.phrase_changed_signal.emit(True)
@@ -456,8 +460,14 @@ class EditDialog(QtWidgets.QDialog):
 
         vbox.addWidget(QtWidgets.QLabel(self.tr("Hour")))
         self.hour_qte = QtWidgets.QTimeEdit()
-        self.hour_qte.setTime(question.hour_int)
+        qtime = QtCore.QTime(question.hour_int, 0)
+        self.hour_qte.setTime(qtime)
         vbox.addWidget(self.hour_qte)
+
+        vbox.addWidget(QtWidgets.QLabel(self.tr("Labels")))
+        self.labels_qpte = QtWidgets.QPlainTextEdit()
+        self.labels_qpte.setPlainText(question.labels_str)
+        vbox.addWidget(self.labels_qpte)
 
         self.button_box = QtWidgets.QDialogButtonBox(
             QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel,

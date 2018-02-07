@@ -255,6 +255,21 @@ class WellBeingWindow(QtWidgets.QMainWindow):
             question = wbd.model.QuestionM.get(wbd.wbd_global.active_question_id_it)
             self.central_widget_w3.question_title_qll.setText(question.title_str)
             self.central_widget_w3.question_descr_qll.setText(question.question_str)
+
+            self.central_widget_w3.question_labels_qll.setText(question.labels_str)
+
+
+            """
+            labels_str = question.labels_str
+            label_list = labels_str.split(";")
+            for label_str in label_list:
+                label_str.strip()
+                self.central_widget_w3.
+            """
+
+
+            # TODO: Move this code into the central widget
+
         else:
             self.central_widget_w3.question_title_qll.setText("<i>title empty</i>")
             self.central_widget_w3.question_descr_qll.setText("<i>descr. empty</i>")
