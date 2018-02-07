@@ -101,6 +101,20 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
         logging.debug("on_indexes_moved, i_indexes_moved = " + str(i_indexes_moved))
     """
 
+    def on_current_row_changed(self):
+        ###self.current_row_changed_signal.emit(self.list_widget.currentRow())
+
+        current_row_int = self.list_widget.currentRow()
+        # if current_row_int != NO_QUESTION_INT:
+        current_question_qli = self.list_widget.item(current_row_int)
+        customqlabel_widget = self.list_widget.itemWidget(current_question_qli)
+        if customqlabel_widget is not None:
+            wbd.wbd_global.active_question_id_it = customqlabel_widget.question_entry_id
+            self.current_row_changed_signal.emit()
+        # else:
+        # pass
+        ######wbd.bwbglobal.active_question_id_it = None
+
     def on_edit_clicked(self):
         id_int = wbd.wbd_global.active_question_id_it
         if id_int != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
@@ -324,19 +338,6 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
         wbd.model.QuestionM.add(i_practice_text_sg, "question unfilled")
         self.update_gui()
 
-    def on_current_row_changed(self):
-        ###self.current_row_changed_signal.emit(self.list_widget.currentRow())
-
-        current_row_int = self.list_widget.currentRow()
-        # if current_row_int != NO_QUESTION_INT:
-        current_question_qli = self.list_widget.item(current_row_int)
-        customqlabel_widget = self.list_widget.itemWidget(current_question_qli)
-        if customqlabel_widget is not None:
-            wbd.wbd_global.active_question_id_it = customqlabel_widget.question_entry_id
-            self.current_row_changed_signal.emit()
-        # else:
-        # pass
-        ######wbd.bwbglobal.active_question_id_it = None
 
     """
     def on_item_selection_changed(self, i_qlistwidget_item):

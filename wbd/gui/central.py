@@ -129,6 +129,43 @@ class CompositeCentralWidget(QtWidgets.QWidget):
         journalm_list = bwb_model.JournalM.get_all()
     """
 
+
+    def question_current_row_changed(self):
+        # TODO: Do we want to have this code as part of the update_gui method?
+
+        # -"None" cannot be sent using the signal system since it is not an "int"
+
+        if not wbd.wbd_global.diary_view_locked_bool:
+            wbd.wbd_global.active_view_viewenum = wbd.wbd_global.ViewEnum.question_view
+
+        if wbd.wbd_global.active_question_id_it is not None:
+            question = wbd.model.QuestionM.get(wbd.wbd_global.active_question_id_it)
+
+            question_str = question.question_str
+            new_question_str = wbd.wbd_global.create_links_using_delimiters(question_str, "<", ">")
+            logging.debug("new_question_str = " + new_question_str)
+
+            html_str = (
+                '<span style="font-size: 14pt">' + question.title_str + '</span>'
+                + "<span>"
+                + " " + new_question_str
+                + "</span>"
+            )
+            # + " " + re.sub("(<[.]+>)", '<a href="$1>$1</a>', question.question_str)
+
+            self.question_info_shared_qll.setText(html_str)
+            self.question_info_shared_qll.linkActivated.connect(self.on_link_activated)
+
+            # TODO: Move this code into the central widget
+
+        else:
+            self.question_info_shared_qll.setText("<i>title empty</i>")
+
+    def on_link_activated(self, i_link: str):
+        logging.debug("on_link_activated, i_link = " + i_link)
+        self.adding_text_to_diary_textedit_w6.appendPlainText(i_link)
+
+
     def on_lock_view_clicked(self, i_checked: bool):
         wbd.wbd_global.diary_view_locked_bool = i_checked
 

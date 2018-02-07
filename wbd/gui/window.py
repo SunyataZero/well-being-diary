@@ -188,6 +188,10 @@ class WellBeingWindow(QtWidgets.QMainWindow):
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, image_dock_qw2)
         """
 
+    def on_question_current_row_changed(self):
+        self.central_widget_w3.question_current_row_changed()
+        self.update_gui(EventSource.obs_current_row_changed)
+
     def on_search_text_changed(self):
         self.update_gui(EventSource.tags)
 
@@ -243,40 +247,6 @@ class WellBeingWindow(QtWidgets.QMainWindow):
 
     def on_practice_details_time_of_day_state_changed(self):
         self.update_gui(EventSource.practice_details)
-
-    def on_question_current_row_changed(self):
-        # -"None" cannot be sent using the signal system since it is not an "int"
-
-        if not wbd.wbd_global.diary_view_locked_bool:
-            wbd.wbd_global.active_view_viewenum = wbd.wbd_global.ViewEnum.question_view
-
-        if wbd.wbd_global.active_question_id_it is not None:
-            question = wbd.model.QuestionM.get(wbd.wbd_global.active_question_id_it)
-
-            question_str = question.question_str
-            new_question_str = wbd.wbd_global.create_links_using_delimiters(question_str, "<", ">")
-            logging.debug("new_question_str = " + new_question_str)
-
-            html_str = (
-                '<span style="font-size: 14pt">' + question.title_str + '</span>'
-                + "<span>"
-                + " " + new_question_str
-                + "</span>"
-            )
-            # + " " + re.sub("(<[.]+>)", '<a href="$1>$1</a>', question.question_str)
-
-            self.central_widget_w3.question_info_shared_qll.setText(html_str)
-            self.central_widget_w3.question_info_shared_qll.linkActivated.connect(self.on_link_activated)
-
-            # TODO: Move this code into the central widget
-
-        else:
-            self.central_widget_w3.question_info_shared_qll.setText("<i>title empty</i>")
-
-        self.update_gui(EventSource.obs_current_row_changed)
-
-    def on_link_activated(self, i_link: str):
-        logging.debug("on_link_activated, i_link = " + i_link)
 
     def on_practice_item_selection_changed(self):
         pass
