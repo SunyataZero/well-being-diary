@@ -70,6 +70,29 @@ class MoveDirectionEnum(enum.Enum):
     down = 2
 
 
+def create_links_using_delimiters(i_original: str, i_start_delimiter: str, i_end_delimiter: str):
+    # i_start_replace_before: str, i_start_replace_after: str, i_end_replace: str
+    new_str = ""
+    count = 0
+    start_int = 0
+    while count < len(i_original):
+        character_outer = i_original[count]
+        if character_outer == i_start_delimiter:
+            new_str += i_original[start_int:count]
+            start_int = count + 1
+            while count < len(i_original):
+                character_inner = i_original[count]
+                if character_inner == i_end_delimiter:
+                    link_str = i_original[start_int:count]
+                    new_str += '<a href="' + link_str + '">' + link_str + '</a>'
+                    start_int = count + 1
+                    break
+                count += 1
+        count += 1
+    new_str += i_original[start_int:count]
+    return new_str
+
+
 """
 def get_active_date():
     global active_date

@@ -1,11 +1,10 @@
 import enum
 import sys
 import logging
-
+import re
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
-
 import wbd.gui.calendar
 import wbd.gui.central
 import wbd.model
@@ -253,28 +252,31 @@ class WellBeingWindow(QtWidgets.QMainWindow):
 
         if wbd.wbd_global.active_question_id_it is not None:
             question = wbd.model.QuestionM.get(wbd.wbd_global.active_question_id_it)
-            self.central_widget_w3.question_title_qll.setText(question.title_str)
-            self.central_widget_w3.question_descr_qll.setText(question.question_str)
 
-            self.central_widget_w3.question_labels_qll.setText(question.labels_str)
+            question_str = question.question_str
+            new_question_str = wbd.wbd_global.create_links_using_delimiters(question_str, "<", ">")
+            logging.debug("new_question_str = " + new_question_str)
 
+            html_str = (
+                '<span style="font-size: 14pt">' + question.title_str + '</span>'
+                + "<span>"
+                + " " + new_question_str
+                + "</span>"
+            )
+            # + " " + re.sub("(<[.]+>)", '<a href="$1>$1</a>', question.question_str)
 
-            """
-            labels_str = question.labels_str
-            label_list = labels_str.split(";")
-            for label_str in label_list:
-                label_str.strip()
-                self.central_widget_w3.
-            """
-
+            self.central_widget_w3.question_info_shared_qll.setText(html_str)
+            self.central_widget_w3.question_info_shared_qll.linkActivated.connect(self.on_link_activated)
 
             # TODO: Move this code into the central widget
 
         else:
-            self.central_widget_w3.question_title_qll.setText("<i>title empty</i>")
-            self.central_widget_w3.question_descr_qll.setText("<i>descr. empty</i>")
+            self.central_widget_w3.question_info_shared_qll.setText("<i>title empty</i>")
 
         self.update_gui(EventSource.obs_current_row_changed)
+
+    def on_link_activated(self, i_link: str):
+        logging.debug("on_link_activated, i_link = " + i_link)
 
     def on_practice_item_selection_changed(self):
         pass

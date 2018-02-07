@@ -88,28 +88,10 @@ class CompositeCentralWidget(QtWidgets.QWidget):
         adding_area_hbox_l3.addWidget(self.time_of_day_qte)
 
 
-        # ..title
-        self.question_title_qll = QtWidgets.QLabel()
-        self.vbox_l2.addWidget(self.question_title_qll)
-        new_font = QtGui.QFont()
-        new_font.setPointSize(15)
-        self.question_title_qll.setFont(new_font)
-        self.question_title_qll.setWordWrap(True)
-        # self.question_label.setFixedWidth(200)
-        # ..description
-        self.question_descr_qll = QtWidgets.QLabel()
-        new_font = QtGui.QFont()
-        new_font.setPointSize(11)
-        self.question_descr_qll.setFont(new_font)
-        self.question_descr_qll.setWordWrap(True)
-        self.vbox_l2.addWidget(self.question_descr_qll)
-        # ..labels
-        self.question_labels_qll = QtWidgets.QLabel()
-        new_font = QtGui.QFont()
-        new_font.setPointSize(10)
-        self.question_labels_qll.setFont(new_font)
-        self.question_labels_qll.setWordWrap(True)
-        self.vbox_l2.addWidget(self.question_labels_qll)
+        # ..shared info
+        self.question_info_shared_qll = QtWidgets.QLabel()
+        self.vbox_l2.addWidget(self.question_info_shared_qll)
+        self.question_info_shared_qll.setWordWrap(True)
         # ..text input area
         self.adding_text_to_diary_textedit_w6 = CustomQTextEdit(self)
         new_font = QtGui.QFont()

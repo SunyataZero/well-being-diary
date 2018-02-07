@@ -302,18 +302,6 @@ class QuestionM:
         db_connection.commit()
 
     @staticmethod
-    def update_labels(i_id_it, i_new_text_sg):
-        db_connection = DbHelperM.get_db_connection()
-        db_cursor = db_connection.cursor()
-        db_cursor.execute(
-            "UPDATE " + DbSchemaM.QuestionTable.name
-            + " SET " + DbSchemaM.QuestionTable.Cols.labels + " = ?"
-            + " WHERE " + DbSchemaM.QuestionTable.Cols.id + " = ?",
-            (i_new_text_sg, str(i_id_it))
-        )
-        db_connection.commit()
-
-    @staticmethod
     def update_description(i_id_it, i_new_text_sg):
         db_connection = DbHelperM.get_db_connection()
         db_cursor = db_connection.cursor()
