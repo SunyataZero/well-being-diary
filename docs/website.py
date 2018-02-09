@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+
+prefix_str = """<!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8">
@@ -19,6 +20,17 @@
         <a href="participate.html">Participate</a>
     </div>
 </div>
-<h1>Well-being Practice Journal</h1>
+"""
+
+suffix_str = """
 </body>
-</html>
+</html>"""
+
+home_str = prefix_str + "<h1>Well-being Practice Journal</h1>" + suffix_str
+user_guide_str = prefix_str + "<h1>User Guide</h1>" + suffix_str
+
+with open("index.html", "w") as text_file:
+    text_file.write(home_str)
+
+with open("user_guide.html", "w") as text_file:
+    text_file.write(user_guide_str)
