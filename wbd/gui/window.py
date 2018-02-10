@@ -124,6 +124,7 @@ class WellBeingWindow(QtWidgets.QMainWindow):
         about_qaction = QtWidgets.QAction("About", self)
         about_qaction.triggered.connect(self.show_about_box)
         manual_qaction = QtWidgets.QAction("Manual", self)
+        manual_qaction.triggered.connect(self.show_user_guide)
         backup_qaction = QtWidgets.QAction("Backup db", self)
         backup_qaction.triggered.connect(wbd.model.backup_db_file)
         ### dear_buddha_qaction = QtWidgets.QAction("Prepend diary entries with \"Dear Buddha\"", self)
@@ -187,6 +188,11 @@ class WellBeingWindow(QtWidgets.QMainWindow):
         image_dock_qw2.setWidget(image_qll)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, image_dock_qw2)
         """
+
+    def show_user_guide(self):
+        with open("docs/user_guide.content.html", "r") as user_guide_file:
+            QtWidgets.QMessageBox.information(self, "User Guide", user_guide_file.read())
+        # TODO: We will need a custom box here with a scrollbar
 
     def on_question_current_row_changed(self):
         self.central_widget_w3.question_current_row_changed()
