@@ -2,16 +2,22 @@
     display: flex;
     justify-content: space-between;
     border-bottom: 1px solid grey;
+    text-decoration: none;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+}
+.title{
+    font-size:17pt;
+    text-decoration: none;
+    /* display: table-caption; */
 }
 .navbar{
 }
 .navbar a{
-    font-size: 15pt;
     text-decoration: none;
+    font-size: 14pt;
     margin-left: 16px;
-}
-.title{
-    font-size:16pt;
 }
 body{
     font-family: Verdana, Geneva, sans-serif;
