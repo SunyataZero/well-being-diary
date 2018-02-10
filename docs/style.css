@@ -1,35 +1,24 @@
 .header{
-    background-color: #65ac04;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid grey;
 }
 .navbar{
-    background-color: #c2ff2d;
-    padding: 0px;
-    margin: 0px;
 }
 .navbar a{
-    color: black;
-    text-align: center;
-    font-size: 16pt;
+    font-size: 15pt;
     text-decoration: none;
-    padding: 0px 10px;
-    margin-bottom: 0px;
-    margin-top: 0px
+    margin-left: 16px;
 }
 .title{
-    background-color: #65ac04;
-    color:white;
-    width: 100%;
-    font-size:32pt;
-    text-decoration: none;
+    font-size:16pt;
 }
 body{
-    background-color: #727272;
     font-family: Verdana, Geneva, sans-serif;
 }
 .center-div{
     margin: auto;
-    max-width: 640px;
-    background-color: #f2f2f2;
+    max-width: 700px;
     border-left: 8px solid transparent;
     border-right: 8px solid transparent;
 }
@@ -49,9 +38,6 @@ img, .video{
         width:100%;
         max-height:auto;
     }
-}
-h1,h2,h3,h4{
-    color: #595959;
 }
 .dlbutton{
     display:inline-block;
@@ -79,3 +65,28 @@ h1,h2,h3,h4{
     padding: 16px 20px;
     margin-bottom: 12px;
 }
+
+/*
+https://stackoverflow.com/questions/5067279/how-to-align-this-span-to-the-right-of-the-div
+
+    color: black;
+
+    color:white;
+
+.header{
+    background-color: #65ac04;
+}
+
+    background-color: #c2ff2d;
+
+    background-color: #65ac04;
+
+    background-color: #727272;
+
+    background-color: #f2f2f2;
+
+h1,h2,h3,h4{
+    color: #595959;
+}
+
+*/

@@ -1,36 +1,24 @@
+import webbrowser
+from string import Template
+# Documentation: https://docs.python.org/3/library/string.html#template-strings
 
-prefix_str = """<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/html">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Mindfulness at the Computer</title>
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
-</head>
-<body class="center-div">
-<div class="header">
-    <a class="title" href=".">Mindfulness at the Computer</a>
-    <br>
-    <div class="navbar">
-        <a href=".">Main</a>
-        <a href="screenshots.html">Screenshots</a>
-        <a href="downloads.html">Downloads</a>
-        <a href="user-guide.html">User Guide</a>
-        <a href="participate.html">Participate</a>
-    </div>
-</div>
-"""
 
-suffix_str = """
-</body>
-</html>"""
+template_file = open("template.html", "r")
+index_content_file = open("index.content.html", "r")
+user_guide_content_file = open("user_guide.content.html", "r")
 
-home_str = prefix_str + "<h1>Well-being Practice Journal</h1>" + suffix_str
-user_guide_str = prefix_str + "<h1>User Guide</h1>" + suffix_str
+template = Template(template_file.read())
+home_str = template.substitute(content=index_content_file.read())
+user_guide_str = template.substitute(content=user_guide_content_file.read())
+
+index_content_file.close()
+user_guide_content_file.close()
+template_file.close()
 
 with open("index.html", "w") as text_file:
     text_file.write(home_str)
 
 with open("user_guide.html", "w") as text_file:
     text_file.write(user_guide_str)
+
+webbrowser.open("index.html")
