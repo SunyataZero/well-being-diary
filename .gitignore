@@ -6,3 +6,4 @@ exported.csv
 **/.idea/tasks.xml
 venv
 misc.xml
+bwb_database_file.*
