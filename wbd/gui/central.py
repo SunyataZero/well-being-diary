@@ -11,10 +11,12 @@ import wbd.wbd_global
 ADD_NEW_HEIGHT_IT = 100
 JOURNAL_BUTTON_GROUP_ID_INT = 1
 NO_DIARY_ENTRY_EDITING_INT = -1
-ADD_DIARY_BN_TEXT_STR = "Add new diary entry"
+ADD_DIARY_BN_TEXT_STR = "Add entry"  # -"Add new diary entry"
 ADD_AND_NEXT_DIARY_BN_TEXT_STR = "Add and next"
-EDIT_DIARY_BN_TEXT_STR = "Edit diary entry"
+EDIT_DIARY_BN_TEXT_STR = "Edit entry"  # -"Edit diary entry"
 EDIT_AND_NEXT_DIARY_BN_TEXT_STR = "Edit and next"
+
+# TODO: Pressing esc will cancel adding or editing diary entry
 
 
 class CompositeCentralWidget(QtWidgets.QWidget):
@@ -83,9 +85,48 @@ class CompositeCentralWidget(QtWidgets.QWidget):
         # Adding new diary entry..
         adding_area_hbox_l3 = QtWidgets.QHBoxLayout()
 
+        self.time_of_day_qsr = QtWidgets.QSlider()
+        self.time_of_day_qsr.setOrientation(QtCore.Qt.Vertical)
+        self.time_of_day_qsr.setMinimum(0)
+        self.time_of_day_qsr.setMaximum(23)
+        self.time_of_day_qsr.setTickPosition(QtWidgets.QSlider.TicksBothSides)
+        self.time_of_day_qsr.setTickInterval(6)
+        self.time_of_day_qsr.setSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
+        self.time_of_day_qsr.valueChanged.connect(self.hour_slider_changed)
+        adding_area_hbox_l3.addWidget(self.time_of_day_qsr)
+
+        time_of_day_vbox_l4 = QtWidgets.QVBoxLayout()
+        adding_area_hbox_l3.addLayout(time_of_day_vbox_l4)
 
         self.time_of_day_qte = QtWidgets.QTimeEdit()
-        adding_area_hbox_l3.addWidget(self.time_of_day_qte)
+        # self.time_of_day_qte.setDisplayFormat("HH:MM")
+        time_of_day_vbox_l4.addWidget(self.time_of_day_qte)
+
+        minute_grid_l5 = QtWidgets.QGridLayout()
+        time_of_day_vbox_l4.addLayout(minute_grid_l5)
+        MINUTE_BUTTON_WIDTH_INT = 32
+        self.minute_0_qpb = QtWidgets.QPushButton("00")
+        qfont = self.minute_0_qpb.font()
+        qfont.setPointSize(8)
+        self.minute_0_qpb.setFont(qfont)
+        self.minute_0_qpb.setFixedWidth(MINUTE_BUTTON_WIDTH_INT)
+        minute_grid_l5.addWidget(self.minute_0_qpb, 0, 0)
+        # time_of_day_vbox_l4.addWidget(self.minute_0_qpb)
+        self.minute_15_qpb = QtWidgets.QPushButton("15")
+        self.minute_15_qpb.setFont(qfont)
+        self.minute_15_qpb.setFixedWidth(MINUTE_BUTTON_WIDTH_INT)
+        minute_grid_l5.addWidget(self.minute_15_qpb, 0, 1)
+        # time_of_day_vbox_l4.addWidget(self.minute_15_qpb)
+        self.minute_30_qpb = QtWidgets.QPushButton("30")
+        self.minute_30_qpb.setFont(qfont)
+        self.minute_30_qpb.setFixedWidth(MINUTE_BUTTON_WIDTH_INT)
+        minute_grid_l5.addWidget(self.minute_30_qpb, 1, 0)
+        # time_of_day_vbox_l4.addWidget(self.minute_30_qpb)
+        self.minute_45_qpb = QtWidgets.QPushButton("45")
+        self.minute_45_qpb.setFont(qfont)
+        self.minute_45_qpb.setFixedWidth(MINUTE_BUTTON_WIDTH_INT)
+        minute_grid_l5.addWidget(self.minute_45_qpb, 1, 1)
+        # time_of_day_vbox_l4.addWidget(self.minute_45_qpb)
 
 
         # ..shared info
@@ -105,13 +146,17 @@ class CompositeCentralWidget(QtWidgets.QWidget):
         edit_diary_entry_vbox_l4 = QtWidgets.QVBoxLayout()
         ###diary_entry_label = QtWidgets.QLabel("<h4>New diary entry </h4>")
         ###edit_diary_entry_vbox_l4.addWidget(diary_entry_label)
+        self.favorite_qpb = QtWidgets.QPushButton("Favorite")
+        self.favorite_qpb.setCheckable(True)
+        edit_diary_entry_vbox_l4.addWidget(self.favorite_qpb)
         self.add_bn_w3 = QtWidgets.QPushButton(ADD_DIARY_BN_TEXT_STR)
-        self.add_bn_w3.setFixedHeight(50)
+        self.add_bn_w3.setFixedHeight(40)
         edit_diary_entry_vbox_l4.addWidget(self.add_bn_w3)
         # noinspection PyUnresolvedReferences
         self.add_bn_w3.clicked.connect(self.on_add_text_to_diary_button_clicked)
         self.add_and_next_qbn_w3 = QtWidgets.QPushButton(ADD_AND_NEXT_DIARY_BN_TEXT_STR)
         edit_diary_entry_vbox_l4.addWidget(self.add_and_next_qbn_w3)
+        self.add_and_next_qbn_w3.hide()  # -TODO: add this again?
         self.cancel_editing_qbn_w3 = QtWidgets.QPushButton("Cancel editing")
         self.cancel_editing_qbn_w3.clicked.connect(self.on_cancel_clicked)
         self.cancel_editing_qbn_w3.hide()
@@ -129,6 +174,9 @@ class CompositeCentralWidget(QtWidgets.QWidget):
         journalm_list = bwb_model.JournalM.get_all()
     """
 
+    def hour_slider_changed(self, i_value: int):
+        qtime = QtCore.QTime(i_value, 0)
+        self.time_of_day_qte.setTime(qtime)
 
     def question_current_row_changed(self):
         # TODO: Do we want to have this code as part of the update_gui method?
