@@ -134,7 +134,7 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
             wbd.model.QuestionM.update_hour(wbd.wbd_global.active_question_id_it, hour_int)
             wbd.model.QuestionM.update_description(
                 wbd.wbd_global.active_question_id_it,
-                self.edit_dialog.description_qle.text()
+                self.edit_dialog.description_qpte.toPlainText()
             )
         else:
             pass
@@ -446,14 +446,24 @@ class EditDialog(QtWidgets.QDialog):
         question = wbd.model.QuestionM.get(wbd.wbd_global.active_question_id_it)
 
         vbox = QtWidgets.QVBoxLayout(self)
+        spacing_int = 20
 
         vbox.addWidget(QtWidgets.QLabel(self.tr("Title")))
         self.question_title_qle = QtWidgets.QLineEdit(question.title_str)
         vbox.addWidget(self.question_title_qle)
+        vbox.addSpacing(spacing_int)
 
         vbox.addWidget(QtWidgets.QLabel(self.tr("Description")))
-        self.description_qle = QtWidgets.QLineEdit(question.question_str)
-        vbox.addWidget(self.description_qle)
+        self.description_qpte = QtWidgets.QPlainTextEdit()
+        self.description_qpte.setPlaceholderText("Please enter a description")
+        self.description_qpte.setPlainText(question.question_str)
+        vbox.addWidget(self.description_qpte)
+        descr_help_str = """You can enclose text inside < and > to make it clickable """
+        """so that it is added to the edit area when clicking it"""
+        self.description_help_qll = QtWidgets.QLabel(descr_help_str)
+        self.description_help_qll.setWordWrap(True)
+        vbox.addWidget(self.description_help_qll)
+        vbox.addSpacing(spacing_int)
 
         vbox.addWidget(QtWidgets.QLabel(self.tr("Hour")))
         self.hour_qte = QtWidgets.QTimeEdit()

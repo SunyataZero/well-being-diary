@@ -48,7 +48,7 @@ class WellBeingWindow(QtWidgets.QMainWindow):
                             + wbd.wbd_global.BWB_APPLICATION_VERSION_STR + "] "
                             + data_storage_str)
         self.setWindowIcon(QtGui.QIcon("icon.png"))
-        self.setStyleSheet("selection-background-color:#72ba5e")
+        self.setStyleSheet("* {selection-background-color:#72ba5e;};")
         # self.setStyleSheet("selection-background-color:#72ba5e; font-size:10.5pt")
 
         # Setup of widgets..

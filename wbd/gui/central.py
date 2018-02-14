@@ -131,6 +131,11 @@ class CompositeCentralWidget(QtWidgets.QWidget):
 
         # ..shared info
         self.question_info_shared_qll = QtWidgets.QLabel()
+        palette = self.question_info_shared_qll.palette()
+        palette.setColor(QtGui.QPalette.Link, QtGui.QColor("#009900"))
+        self.question_info_shared_qll.setPalette(palette)
+        # self.question_info_shared_qll.setStyleSheet("color: palette(link);")
+        self.question_info_shared_qll.linkActivated.connect(self.on_link_activated)
         self.vbox_l2.addWidget(self.question_info_shared_qll)
         self.question_info_shared_qll.setWordWrap(True)
         # ..text input area
@@ -202,7 +207,6 @@ class CompositeCentralWidget(QtWidgets.QWidget):
             # + " " + re.sub("(<[.]+>)", '<a href="$1>$1</a>', question.question_str)
 
             self.question_info_shared_qll.setText(html_str)
-            self.question_info_shared_qll.linkActivated.connect(self.on_link_activated)
 
             # TODO: Move this code into the central widget
 
@@ -212,7 +216,6 @@ class CompositeCentralWidget(QtWidgets.QWidget):
     def on_link_activated(self, i_link: str):
         logging.debug("on_link_activated, i_link = " + i_link)
         self.adding_text_to_diary_textedit_w6.appendPlainText(i_link)
-
 
     def on_lock_view_clicked(self, i_checked: bool):
         wbd.wbd_global.diary_view_locked_bool = i_checked
