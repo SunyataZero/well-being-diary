@@ -194,9 +194,9 @@ class DiaryListCompositeWidget(QtWidgets.QWidget):
 
             date_string_format_str = "%A"  # -weekday
             if wbd_global.active_view_viewenum == wbd_global.ViewEnum.daily_overview:
-                date_string_format_str = "%H:%M"  # -weekday
+                date_string_format_str = "%H:%M"  # -hour, min
             elif diary_entry.date_added_it < time.time() - 60 * 60 * 24 * 7:
-                date_string_format_str = "%-d %b"  # -weekday
+                date_string_format_str = "%-d %b"  # - jun 12
             date_str = datetime.datetime.fromtimestamp(diary_entry.date_added_it).strftime(
                 date_string_format_str)
 

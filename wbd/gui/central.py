@@ -1,11 +1,10 @@
 import logging
 import wbd.gui.diary
 import wbd.model
-
+import re
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 from PyQt5 import QtGui
-
 import wbd.wbd_global
 
 ADD_NEW_HEIGHT_IT = 100
@@ -195,7 +194,8 @@ class CompositeCentralWidget(QtWidgets.QWidget):
             question = wbd.model.QuestionM.get(wbd.wbd_global.active_question_id_it)
 
             question_str = question.question_str
-            new_question_str = wbd.wbd_global.create_links_using_delimiters(question_str, "<", ">")
+            # new_question_str = wbd.wbd_global.create_links_using_delimiters(question_str, "<", ">")
+            new_question_str = re.sub(r'<(.*?)>', r'<a href="\1">\1</a>', question_str)
             logging.debug("new_question_str = " + new_question_str)
 
             html_str = (
