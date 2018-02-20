@@ -2,6 +2,8 @@ Project status: Pre-alpha
 
 # Well-being Diary
 
+[![Join the chat at https://gitter.im/well-being-diary/Lobby](https://badges.gitter.im/well-being-diary/Lobby.svg)](https://gitter.im/well-being-diary/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 A happiness and well-being diary application. It's a cross-platform desktop application and is in an early development/prototype stage
 
 **Table of contents:**
