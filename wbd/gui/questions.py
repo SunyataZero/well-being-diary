@@ -330,7 +330,7 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
         text_sg = self.adding_new_practice_qle.text().strip()  # strip is needed to remove a newline at the end (why?)
         if not (text_sg and text_sg.strip()):
             return
-        wbd.model.QuestionM.add(text_sg, "long question text")
+        wbd.model.QuestionM.add(text_sg, "")
         self.adding_new_practice_qle.clear()
         self.update_gui()
 

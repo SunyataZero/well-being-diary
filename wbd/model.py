@@ -104,9 +104,6 @@ def initial_schema_and_setup(i_db_conn):
         + ")"
     )
 
-    if wbd.wbd_global.testing_bool:
-        populate_db_with_test_data()
-
 
 """
 Example of db upgrade code:
@@ -165,6 +162,9 @@ class DbHelperM(object):
 
             # TODO: Where do we close the db connection? (Do we need to close it?)
             # http://stackoverflow.com/questions/3850261/doing-something-before-program-exit
+
+            if wbd.wbd_global.testing_bool:
+                populate_db_with_test_data()
 
         return DbHelperM.__db_connection
 
@@ -683,6 +683,8 @@ def export_all():
 
 
 def backup_db_file():
+    if wbd.wbd_global.testing_bool:
+        return
     date_sg = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     new_file_name_sg = wbd.wbd_global.get_database_filename() + "_" + date_sg
     shutil.copyfile(wbd.wbd_global.get_database_filename(), new_file_name_sg)
