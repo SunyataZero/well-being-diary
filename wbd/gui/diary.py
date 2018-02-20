@@ -244,6 +244,9 @@ class DiaryListCompositeWidget(QtWidgets.QWidget):
             if diary_entry.favorite_it == wbd.model.SQLITE_TRUE:
                 listitem_cqll.setStyleSheet("background-color:rgba(180,230,180,0.3);")  # #d0e8c9 rgba(0,255,0,0.3);
             listitem_cqll.mouse_pressed_signal.connect(self.on_custom_label_mouse_pressed)
+            listitem_cqll.setTextInteractionFlags(
+                QtCore.Qt.TextSelectableByMouse
+            )
 
             hbox_l6.addWidget(listitem_cqll, stretch=5)
 
@@ -279,5 +282,5 @@ class CustomQLabel(QtWidgets.QLabel):
     # Overridden
     # Please note that this is the event handler (not an event!)
     def mousePressEvent(self, i_qmouseevent):
-        ### super(CustomQLabel, self).mousePressEvent(i_qmouseevent)
+        super(CustomQLabel, self).mousePressEvent(i_qmouseevent)
         self.mouse_pressed_signal.emit(i_qmouseevent, self.diary_entry_id)

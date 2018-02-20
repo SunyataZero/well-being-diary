@@ -31,6 +31,7 @@ if __name__ == "__main__":
 
     # === Creating the main window ===
     app = QtWidgets.QApplication(sys.argv)
+    print("app pid = " + str(app.applicationPid()))
     # -"QWidget: Must construct a QApplication before a QWidget"
     main_window = wbd.gui.window.WellBeingWindow()
 
