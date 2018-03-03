@@ -97,7 +97,7 @@ class TagBoxCompositeWidget(QtWidgets.QWidget):
     def on_tags_current_row_changed(self):
         current_row_int = self.tags_qlw.currentRow()
         current_row_qli = self.tags_qlw.item(current_row_int)
-        search_text_str = current_row_qli.text()
+        search_text_str = current_row_qli.text() if current_row_qli else None
         # self.ref_search_qle.setText(search_text_str)
         self.current_row_changed_signal.emit(search_text_str)
 
