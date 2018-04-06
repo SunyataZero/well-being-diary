@@ -175,13 +175,13 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
         #  if the widget is stored in the list somehow)
         if i_move_direction == wbd.wbd_global.MoveDirectionEnum.up:
             # if main_sort_order_int == 0 or main_sort_order_int > len(QuestionM.get_all()):
-            if current_row_int > 0:
+            if current_row_int >= 0:
                 self.list_widget.insertItem(current_row_int - 1, current_list_widget_item)
                 self.list_widget.setItemWidget(current_list_widget_item, item_widget)
                 self.list_widget.setCurrentRow(current_row_int - 1)
         elif i_move_direction == wbd.wbd_global.MoveDirectionEnum.down:
             # if main_sort_order_int < 0 or main_sort_order_int >= len(QuestionM.get_all()):
-            if current_row_int < self.list_widget.count() - 1:
+            if current_row_int < self.list_widget.count():
                 self.list_widget.insertItem(current_row_int + 1, current_list_widget_item)
                 self.list_widget.setItemWidget(current_list_widget_item, item_widget)
                 self.list_widget.setCurrentRow(current_row_int + 1)
