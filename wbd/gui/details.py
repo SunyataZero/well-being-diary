@@ -19,6 +19,7 @@ class CompositeDetailsWidget(QtWidgets.QWidget):
         vbox2.addWidget(self.title_qll)
 
         self.qtextedit = QtWidgets.QTextEdit()
+        self.qtextedit.setFontPointSize(16)
         self.qtextedit.textChanged.connect(self.on_textedit_changed)
         vbox2.addWidget(self.qtextedit)
 
