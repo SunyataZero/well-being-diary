@@ -22,6 +22,12 @@ class SearchAndTagsCompositeWidget(QtWidgets.QWidget):
         self.search_qle.textChanged.connect(self.on_search_text_changed)  # textEdited
         self.search_qle.setPlaceholderText("Search")
 
+        # ..column 2
+        self.hashtags_composite = TagBoxCompositeWidget("Hashtags", "#")
+        vbox1.addWidget(self.hashtags_composite)
+        self.hashtags_composite.current_row_changed_signal.connect(self.on_tags_current_row_changed)
+
+        """
         # Row 1
         hbox2 = QtWidgets.QHBoxLayout()
         vbox1.addLayout(hbox2)
@@ -55,6 +61,8 @@ class SearchAndTagsCompositeWidget(QtWidgets.QWidget):
         self.needs_composite = TagBoxCompositeWidget("Needs", "+")
         hbox2.addWidget(self.needs_composite)
         self.needs_composite.current_row_changed_signal.connect(self.on_tags_current_row_changed)
+        """
+
 
         self.update_gui()
 
@@ -69,11 +77,13 @@ class SearchAndTagsCompositeWidget(QtWidgets.QWidget):
     def update_gui(self):
         # reading tags from the db
         self.hashtags_composite.update_gui()
+        """
         self.feelings_composite.update_gui()
         self.needs_composite.update_gui()
         self.joy_composite.update_gui()
         self.friends_composite.update_gui()
         self.places_composite.update_gui()
+        """
 
 
 class TagBoxCompositeWidget(QtWidgets.QWidget):

@@ -14,6 +14,7 @@ import wbd.wbd_global
 import wbd.gui.quotes
 import wbd.gui.reminders
 import wbd.gui.search_and_tags
+import wbd.gui.details
 
 
 class EventSource(enum.Enum):
@@ -70,7 +71,6 @@ class WellBeingWindow(QtWidgets.QMainWindow):
             QtWidgets.QDockWidget.DockWidgetFloatable)
         self.questions_composite_w3 = wbd.gui.questions.PracticeCompositeWidget()
         self.questions_composite_w3.item_selection_changed_signal.connect(self.on_practice_item_selection_changed)
-        self.questions_composite_w3.current_row_changed_signal.connect(self.on_question_current_row_changed)
         self.questions_dock_qw2.setWidget(self.questions_composite_w3)
 
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.questions_dock_qw2)
@@ -91,6 +91,8 @@ class WellBeingWindow(QtWidgets.QMainWindow):
             .connect(self.on_central_key_press_up_for_question_list)
         self.central_widget_w3.adding_text_to_diary_textedit_w6.key_press_down_for_question_list_signal\
             .connect(self.on_central_key_press_down_for_question_list)
+
+        self.questions_composite_w3.current_row_changed_signal.connect(self.on_question_current_row_changed)
 
         # ..reminders
         reminders_dock_qw2 = QtWidgets.QDockWidget("Reminders", self)
@@ -195,7 +197,7 @@ class WellBeingWindow(QtWidgets.QMainWindow):
         # TODO: We will need a custom box here with a scrollbar
 
     def on_question_current_row_changed(self):
-        self.central_widget_w3.question_current_row_changed()
+        self.central_widget_w3.details.question_current_row_changed()
         self.update_gui(EventSource.obs_current_row_changed)
 
     def on_search_text_changed(self):
