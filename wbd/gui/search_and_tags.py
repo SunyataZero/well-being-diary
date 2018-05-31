@@ -22,10 +22,32 @@ class SearchAndTagsCompositeWidget(QtWidgets.QWidget):
         self.search_qle.textChanged.connect(self.on_search_text_changed)  # textEdited
         self.search_qle.setPlaceholderText("Search")
 
+        self.journals_qlw = QtWidgets.QListWidget()
+        for journal in wbd.model.JournalM.get_all():
+            self.journals_qlw.addItem(journal.title_str)
+        vbox1.addWidget(self.journals_qlw)
+
+        """
         # ..column 2
         self.hashtags_composite = TagBoxCompositeWidget("Hashtags", "#")
         vbox1.addWidget(self.hashtags_composite)
         self.hashtags_composite.current_row_changed_signal.connect(self.on_tags_current_row_changed)
+
+        # ..calendar
+        calendar_dock_qdw2 = QtWidgets.QDockWidget("Calendar", self)
+        calendar_dock_qdw2.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea)
+        calendar_dock_qdw2.setFeatures(QtWidgets.QDockWidget.NoDockWidgetFeatures)
+        self.custom_calendar_w3 = wbd.gui.calendar.CompositeCalendarWidget()
+        self.custom_calendar_w3.setFixedHeight(240)
+        self.custom_calendar_w3.calendar_widget.selectionChanged.connect(self.on_calendar_selection_changed)
+        # -TODO: Move this into the calendar widget class
+        ### self.custom_calendar_w3.calendar_widget.currentPageChanged.connect(self.on_calendar_page_changed)
+        calendar_dock_qdw2.setWidget(self.custom_calendar_w3)
+        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, calendar_dock_qdw2)
+        """
+
+        # self.custom_calendar_w3.update_gui()
+
 
         """
         # Row 1
@@ -76,7 +98,7 @@ class SearchAndTagsCompositeWidget(QtWidgets.QWidget):
 
     def update_gui(self):
         # reading tags from the db
-        self.hashtags_composite.update_gui()
+        #self.hashtags_composite.update_gui()
         """
         self.feelings_composite.update_gui()
         self.needs_composite.update_gui()

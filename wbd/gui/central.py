@@ -180,11 +180,6 @@ class CompositeCentralWidget(QtWidgets.QWidget):
         qtime = QtCore.QTime(i_value, 0)
         self.time_of_day_qte.setTime(qtime)
 
-
-    def on_link_activated(self, i_link: str):
-        logging.debug("on_link_activated, i_link = " + i_link)
-        self.adding_text_to_diary_textedit_w6.appendPlainText(i_link)
-
     def on_lock_view_clicked(self, i_checked: bool):
         wbd.wbd_global.diary_view_locked_bool = i_checked
 

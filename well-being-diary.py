@@ -9,7 +9,7 @@ from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
-import wbd.gui.window
+import wbd.gui.main_window
 
 
 if __name__ == "__main__":
@@ -33,7 +33,7 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     print("app pid = " + str(app.applicationPid()))
     # -"QWidget: Must construct a QApplication before a QWidget"
-    main_window = wbd.gui.window.WellBeingWindow()
+    main_window = wbd.gui.main_window.MainWindow()
 
     # System tray
     tray_icon = QtWidgets.QSystemTrayIcon(QtGui.QIcon("icon.png"), app)

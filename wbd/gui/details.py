@@ -21,6 +21,8 @@ class CompositeDetailsWidget(QtWidgets.QWidget):
         self.qtextedit = QtWidgets.QTextEdit()
         self.qtextedit.setFontPointSize(16)
         self.qtextedit.textChanged.connect(self.on_textedit_changed)
+        # self.qtextedit.setReadOnly(True)
+
         vbox2.addWidget(self.qtextedit)
 
         """
@@ -33,8 +35,12 @@ class CompositeDetailsWidget(QtWidgets.QWidget):
         self.question_info_shared_qll.linkActivated.connect(self.on_link_activated)
         self.vbox_l2.addWidget(self.question_info_shared_qll)
         self.question_info_shared_qll.setWordWrap(True)
-        """
+        
+            def on_link_activated(self, i_link: str):
+        logging.debug("on_link_activated, i_link = " + i_link)
+        self.adding_text_to_diary_textedit_w6.appendPlainText(i_link)
 
+        """
 
     def question_current_row_changed(self):
         # TODO: Do we want to have this code as part of the update_gui method?

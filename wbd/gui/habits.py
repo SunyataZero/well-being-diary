@@ -10,7 +10,7 @@ import wbd.wbd_global
 import wbd.gui.safe_confirmation_dialog
 
 
-class PracticeCompositeWidget(QtWidgets.QWidget):
+class HabitCompositeWidget(QtWidgets.QWidget):
     item_selection_changed_signal = QtCore.pyqtSignal()
     current_row_changed_signal = QtCore.pyqtSignal()
     # -Please note: The int that is sent is not the current row number, but instead the id for the question
@@ -30,15 +30,26 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
         # ..for ten practices (left column)
         ##habits_label = QtWidgets.QLabel("<h3>Journals</h3>")
         ##vbox_l2.addWidget(habits_label)
-        self.list_widget = CustomListWidget()
-        self.list_widget.setDragDropMode(QtWidgets.QAbstractItemView.InternalMove)
-        self.list_widget.drop_signal.connect(self.on_internal_list_widget_drop)
+        vbox_l2.addWidget(QtWidgets.QLabel("Schedule"))
+        self.schedule_clw = CustomListWidget()
+        self.schedule_clw.drop_signal.connect(self.on_internal_list_widget_drop)
+        self.schedule_clw.currentRowChanged.connect(self.on_current_row_changed)
+        vbox_l2.addWidget(self.schedule_clw)
         ###self.list_widget.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
-        vbox_l2.addWidget(self.list_widget)
-        self.list_widget.currentRowChanged.connect(self.on_current_row_changed)
         ###self.list_widget.itemPressed.connect(self.on_item_selection_changed)
         # -itemClicked didn't work, unknown why (it worked on the first click but never when running in debug mode)
         # -currentItemChanged cannot be used here since it is activated before the list of selected items is updated
+
+        """
+        # ..unstructured
+        vbox_l2.addWidget(QtWidgets.QLabel("Habits"))
+        self.habits_clw = CustomListWidget()
+        self.habits_clw.setDragDropMode(QtWidgets.QAbstractItemView.InternalMove)
+        self.habits_clw.drop_signal.connect(self.on_internal_list_widget_drop)
+        self.habits_clw.currentRowChanged.connect(self.on_current_row_changed)
+        vbox_l2.addWidget(self.habits_clw)
+        """
+
         # ..for adding a new question
         hbox_l3 = QtWidgets.QHBoxLayout()
         vbox_l2.addLayout(hbox_l3)
@@ -104,10 +115,10 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
     def on_current_row_changed(self):
         ###self.current_row_changed_signal.emit(self.list_widget.currentRow())
 
-        current_row_int = self.list_widget.currentRow()
+        current_row_int = self.schedule_clw.currentRow()
         # if current_row_int != NO_QUESTION_INT:
-        current_question_qli = self.list_widget.item(current_row_int)
-        customqlabel_widget = self.list_widget.itemWidget(current_question_qli)
+        current_question_qli = self.schedule_clw.item(current_row_int)
+        customqlabel_widget = self.schedule_clw.itemWidget(current_question_qli)
         if customqlabel_widget is not None:
             wbd.wbd_global.active_question_id_it = customqlabel_widget.question_entry_id
             self.current_row_changed_signal.emit()
@@ -130,7 +141,10 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
                 wbd.wbd_global.active_question_id_it,
                 self.edit_dialog.question_title_qle.text()
             )
-            hour_int = self.edit_dialog.hour_qte.time().hour()
+            if self.edit_dialog.is_sheduled_bool:
+                hour_int = self.edit_dialog.hour_qte.time().hour()
+            else:
+                hour_int = wbd.model.TIME_NOT_SET
             wbd.model.QuestionM.update_hour(wbd.wbd_global.active_question_id_it, hour_int)
             wbd.model.QuestionM.update_description(
                 wbd.wbd_global.active_question_id_it,
@@ -152,11 +166,11 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
     def update_db_sort_order_for_all_rows(self):
         logging.debug("update_db_sort_order_for_all_rows")
         count = 0
-        while count < self.list_widget.count():
-            q_list_item_widget = self.list_widget.item(count)
-            custom_label = self.list_widget.itemWidget(q_list_item_widget)
+        while count < self.schedule_clw.count():
+            q_list_item_widget = self.schedule_clw.item(count)
+            custom_label = self.schedule_clw.itemWidget(q_list_item_widget)
             id_int = custom_label.question_entry_id
-            row_int = self.list_widget.row(q_list_item_widget)
+            row_int = self.schedule_clw.row(q_list_item_widget)
             wbd.model.QuestionM.update_sort_order(
                 id_int,
                 row_int
@@ -165,10 +179,10 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
             count += 1
 
     def move_current_row_up_down(self, i_move_direction: wbd.wbd_global.MoveDirectionEnum) -> None:
-        current_row_int = self.list_widget.currentRow()
-        current_list_widget_item = self.list_widget.item(current_row_int)
-        item_widget = self.list_widget.itemWidget(current_list_widget_item)
-        self.list_widget.takeItem(current_row_int)
+        current_row_int = self.schedule_clw.currentRow()
+        current_list_widget_item = self.schedule_clw.item(current_row_int)
+        item_widget = self.schedule_clw.itemWidget(current_list_widget_item)
+        self.schedule_clw.takeItem(current_row_int)
         # -IMPORTANT: item is removed from list only after the item widget has been extracted.
         #  The reason for this is that if we take the item away from the list the associated
         #  widget (in our case a CustomLabel) will not come with us (which makes sense
@@ -176,15 +190,15 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
         if i_move_direction == wbd.wbd_global.MoveDirectionEnum.up:
             # if main_sort_order_int == 0 or main_sort_order_int > len(QuestionM.get_all()):
             if current_row_int >= 0:
-                self.list_widget.insertItem(current_row_int - 1, current_list_widget_item)
-                self.list_widget.setItemWidget(current_list_widget_item, item_widget)
-                self.list_widget.setCurrentRow(current_row_int - 1)
+                self.schedule_clw.insertItem(current_row_int - 1, current_list_widget_item)
+                self.schedule_clw.setItemWidget(current_list_widget_item, item_widget)
+                self.schedule_clw.setCurrentRow(current_row_int - 1)
         elif i_move_direction == wbd.wbd_global.MoveDirectionEnum.down:
             # if main_sort_order_int < 0 or main_sort_order_int >= len(QuestionM.get_all()):
-            if current_row_int < self.list_widget.count():
-                self.list_widget.insertItem(current_row_int + 1, current_list_widget_item)
-                self.list_widget.setItemWidget(current_list_widget_item, item_widget)
-                self.list_widget.setCurrentRow(current_row_int + 1)
+            if current_row_int < self.schedule_clw.count():
+                self.schedule_clw.insertItem(current_row_int + 1, current_list_widget_item)
+                self.schedule_clw.setItemWidget(current_list_widget_item, item_widget)
+                self.schedule_clw.setCurrentRow(current_row_int + 1)
 
         self.update_db_sort_order_for_all_rows()
 
@@ -316,7 +330,7 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
             )
 
             if conf_result_bool:
-                self.list_widget.clearSelection()
+                self.schedule_clw.clearSelection()
                 wbd.wbd_global.active_question_id_it = None
                 self.current_row_changed_signal.emit()
 
@@ -359,9 +373,12 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
 
     def update_gui(self):
         logging.debug("questions - update_gui() entered")
-        current_row_int = self.list_widget.currentRow()
-        self.list_widget.clear()
-        self.list_widget.clearSelection()
+        current_row_int = self.schedule_clw.currentRow()
+        self.schedule_clw.clear()
+        self.schedule_clw.clearSelection()
+
+        #self.habits_clw.clear()
+        #self.habits_clw.clearSelection()
 
         """
         row_item = QtWidgets.QListWidgetItem()
@@ -385,14 +402,21 @@ class PracticeCompositeWidget(QtWidgets.QWidget):
             question_title_qll.mouse_pressed_signal.connect(
                 self.on_list_row_label_mouse_pressed
             )
-            self.list_widget.addItem(row_item)
-            self.list_widget.setItemWidget(row_item, question_title_qll)
+
+            """
+            if question.hour_int == wbd.model.TIME_NOT_SET:
+                self.habits_clw.addItem(row_item)
+                self.habits_clw.setItemWidget(row_item, question_title_qll)
+            else:
+            """
+            self.schedule_clw.addItem(row_item)
+            self.schedule_clw.setItemWidget(row_item, question_title_qll)
 
         ###current_row_signal_was_blocked_bl = self.list_widget.blockSignals(True)
         ###self.list_widget.item(1).setSelected(False)
         ###self.list_widget.setCurrentRow(current_row_int)
         ###self.list_widget.blockSignals(current_row_signal_was_blocked_bl)
-        self.list_widget.clearSelection()
+        self.schedule_clw.clearSelection()
         logging.debug("questions - clearselection")
 
 
@@ -435,6 +459,9 @@ class EditDialog(QtWidgets.QDialog):
 
         self.setModal(True)
 
+        self.setFixedWidth(500)
+        self.setFixedHeight(800)
+
         self.updating_gui_bool = False
 
         """
@@ -444,19 +471,20 @@ class EditDialog(QtWidgets.QDialog):
         """
 
         question = wbd.model.QuestionM.get(wbd.wbd_global.active_question_id_it)
+        self.is_sheduled_bool = question.hour_int != wbd.model.TIME_NOT_SET
+
 
         vbox = QtWidgets.QVBoxLayout(self)
         spacing_int = 20
 
         vbox.addWidget(QtWidgets.QLabel(self.tr("Title")))
-        self.question_title_qle = QtWidgets.QLineEdit(question.title_str)
+        self.question_title_qle = QtWidgets.QLineEdit()
         vbox.addWidget(self.question_title_qle)
         vbox.addSpacing(spacing_int)
 
         vbox.addWidget(QtWidgets.QLabel(self.tr("Description")))
         self.description_qpte = QtWidgets.QPlainTextEdit()
         self.description_qpte.setPlaceholderText("Please enter a description")
-        self.description_qpte.setPlainText(question.question_str)
         vbox.addWidget(self.description_qpte)
         descr_help_str = """You can enclose text inside < and > to make it clickable """
         """so that it is added to the edit area when clicking it"""
@@ -465,10 +493,12 @@ class EditDialog(QtWidgets.QDialog):
         vbox.addWidget(self.description_help_qll)
         vbox.addSpacing(spacing_int)
 
+        self.is_scheduled_qcb = QtWidgets.QCheckBox("Scheduled")
+        self.is_scheduled_qcb.toggled.connect(self.on_is_scheduled_toggled)
+        vbox.addWidget(self.is_scheduled_qcb)
+
         vbox.addWidget(QtWidgets.QLabel(self.tr("Hour")))
         self.hour_qte = QtWidgets.QTimeEdit()
-        qtime = QtCore.QTime(question.hour_int, 0)
-        self.hour_qte.setTime(qtime)
         vbox.addWidget(self.hour_qte)
 
         self.button_box = QtWidgets.QDialogButtonBox(
@@ -485,8 +515,24 @@ class EditDialog(QtWidgets.QDialog):
 
     # def on_hour_changed(self):
 
+    def on_is_scheduled_toggled(self, i_checked: bool):
+        self.is_sheduled_bool = i_checked
+        self.update_gui()
+
     def update_gui(self):
         self.updating_gui_bool = True
+
+        question = wbd.model.QuestionM.get(wbd.wbd_global.active_question_id_it)
+
+        self.question_title_qle.setText(question.title_str)
+        self.description_qpte.setPlainText(question.question_str)
+
+        self.is_scheduled_qcb.setChecked(self.is_sheduled_bool)
+
+        self.hour_qte.setEnabled(self.is_sheduled_bool)
+        if self.is_sheduled_bool:
+            qtime = QtCore.QTime(question.hour_int, 0)
+            self.hour_qte.setTime(qtime)
 
         self.adjustSize()
 

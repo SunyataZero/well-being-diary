@@ -13,7 +13,7 @@ class CompositeCalendarWidget(QtWidgets.QWidget):
     selectionChanged
     and
     currentPageChanged
-    are handled in window.py rather than here (this is because it's easier to do, maybe this will be changed later)
+    are handled in main_window.py rather than here (this is because it's easier to do, maybe this will be changed later)
     """
 
     def __init__(self):

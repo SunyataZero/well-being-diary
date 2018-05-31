@@ -28,7 +28,7 @@ import wbd.wbd_global
 SQLITE_FALSE = 0
 SQLITE_TRUE = 1
 SQLITE_NULL = "NULL"
-TIME_NOT_SET = -1
+TIME_NOT_SET = 25
 NO_REFERENCE = -1
 
 
@@ -55,21 +55,23 @@ def initial_schema_and_setup(i_db_conn):
     """Auto-increment is not needed in our case: https://www.sqlite.org/autoinc.html
     """
     i_db_conn.execute(
-        "CREATE TABLE " + DbSchemaM.QuestionTable.name + "("
-        + DbSchemaM.QuestionTable.Cols.id + " INTEGER PRIMARY KEY, "
-        + DbSchemaM.QuestionTable.Cols.sort_order + " INTEGER NOT NULL, "
-        + DbSchemaM.QuestionTable.Cols.title + " TEXT NOT NULL, "
-        + DbSchemaM.QuestionTable.Cols.question + " TEXT NOT NULL DEFAULT '', "
-        + DbSchemaM.QuestionTable.Cols.archived + " INTEGER DEFAULT " + str(SQLITE_FALSE)
+        "CREATE TABLE " + DbSchemaM.HabitTable.name + "("
+        + DbSchemaM.HabitTable.Cols.id + " INTEGER PRIMARY KEY, "
+        + DbSchemaM.HabitTable.Cols.sort_order + " INTEGER NOT NULL, "
+        + DbSchemaM.HabitTable.Cols.title + " TEXT NOT NULL, "
+        + DbSchemaM.HabitTable.Cols.description + " TEXT NOT NULL DEFAULT '', "
+        + DbSchemaM.HabitTable.Cols.archived + " INTEGER DEFAULT " + str(SQLITE_FALSE) + ", "
+        + DbSchemaM.HabitTable.Cols.hour + " INTEGER DEFAULT " + str(TIME_NOT_SET) + ", "
+        + DbSchemaM.HabitTable.Cols.default_journal + " INTEGER DEFAULT " + str(SQLITE_FALSE)
         + ")"
     )
 
     i_db_conn.execute(
-        "INSERT INTO " + DbSchemaM.QuestionTable.name + "("
-        + DbSchemaM.QuestionTable.Cols.id + ", "
-        + DbSchemaM.QuestionTable.Cols.sort_order + ", "
-        + DbSchemaM.QuestionTable.Cols.title + ", "
-        + DbSchemaM.QuestionTable.Cols.question
+        "INSERT INTO " + DbSchemaM.HabitTable.name + "("
+        + DbSchemaM.HabitTable.Cols.id + ", "
+        + DbSchemaM.HabitTable.Cols.sort_order + ", "
+        + DbSchemaM.HabitTable.Cols.title + ", "
+        + DbSchemaM.HabitTable.Cols.description
         + ") VALUES (?, ?, ?, ?)", (wbd.wbd_global.NO_ACTIVE_QUESTION_INT, -1, "<i>no question</i>", "")
     )
 
@@ -81,20 +83,11 @@ def initial_schema_and_setup(i_db_conn):
         + str(SQLITE_FALSE) + "', "
         + DbSchemaM.DiaryEntryTable.Cols.diary_entry + " TEXT, "
         + DbSchemaM.DiaryEntryTable.Cols.question_ref
-        + " INTEGER REFERENCES " + DbSchemaM.QuestionTable.name
-        + "(" + DbSchemaM.QuestionTable.Cols.id + ")"
+        + " INTEGER REFERENCES " + DbSchemaM.HabitTable.name
+        + "(" + DbSchemaM.HabitTable.Cols.id + ")"
         + " NOT NULL DEFAULT '" + str(wbd.wbd_global.NO_ACTIVE_QUESTION_INT) + "'"
         + ")"
     )
-
-    # + " NOT NULL DEFAULT '" + str(wbd.bwbglobal.NO_ACTIVE_QUESTION_INT) + "'"
-
-    """
-    i_db_conn.execute(
-        "CREATE INDEX " + DbSchemaM.DiaryEntryTable.name + "("
-        + ")"
-    )
-    """
 
     i_db_conn.execute(
         "CREATE TABLE " + DbSchemaM.ReminderTable.name + "("
@@ -103,6 +96,24 @@ def initial_schema_and_setup(i_db_conn):
         + DbSchemaM.ReminderTable.Cols.reminder + " TEXT DEFAULT ''"
         + ")"
     )
+    # + " NOT NULL DEFAULT '" + str(wbd.bwbglobal.NO_ACTIVE_QUESTION_INT) + "'"
+
+    i_db_conn.execute(
+        "CREATE TABLE " + DbSchemaM.JournalTable.name + "("
+        + DbSchemaM.JournalTable.Cols.id + " INTEGER PRIMARY KEY, "
+        + DbSchemaM.JournalTable.Cols.sort_order + " INTEGER NOT NULL, "
+        + DbSchemaM.JournalTable.Cols.title + " TEXT NOT NULL, "
+        + DbSchemaM.JournalTable.Cols.description + " TEXT NOT NULL DEFAULT ''"
+        + ")"
+    )
+
+    """
+    i_db_conn.execute(
+        "CREATE INDEX " + DbSchemaM.DiaryEntryTable.name + "("
+        + ")"
+    )
+    """
+
 
 
 """
@@ -113,7 +124,6 @@ def upgrade_1_2(i_db_conn):
         "ALTER TABLE " + DbSchemaM.ObservancesTable.name + " ADD COLUMN "
         + DbSchemaM.ObservancesTable.Cols.user_text + " TEXT DEFAULT ''"
     )
-"""
 
 
 def upgrade_1_2(i_db_conn):
@@ -130,12 +140,11 @@ def upgrade_2_3(i_db_conn):
         "ALTER TABLE " + DbSchemaM.QuestionTable.name + " ADD COLUMN "
         + DbSchemaM.QuestionTable.Cols.labels + " TEXT DEFAULT ''"
     )
+"""
 
 
 upgrade_steps = {
-    1: initial_schema_and_setup,
-    2: upgrade_1_2,
-    3: upgrade_2_3
+    1: initial_schema_and_setup
 }
 
 
@@ -170,17 +179,17 @@ class DbHelperM(object):
 
 
 class DbSchemaM:
-    class QuestionTable:
-        name = "question"
+    class HabitTable:
+        name = "habit"
 
         class Cols:
             id = "id"  # key
             sort_order = "sort_order"
             title = "title"
-            question = "question"
+            description = "description"
             archived = "archived"
             hour = "hour"
-            labels = "labels"
+            default_journal = "default_journal"
 
     class DiaryEntryTable:
         name = "diary_entry"
@@ -200,6 +209,15 @@ class DbSchemaM:
             title = "title"
             reminder = "reminder"
 
+    class JournalTable:
+        name = "journal"
+
+        class Cols:
+            id = "id"  # key
+            sort_order = "sort_order"
+            title = "title"
+            description = "description"
+
 
 class QuestionM:
     def __init__(
@@ -214,20 +232,26 @@ class QuestionM:
         self.labels_str = i_labels
 
     @staticmethod
-    def add(i_title_str: str, i_question_str: str) -> int:
+    def add(i_title_str: str, i_question_str: str, i_archived: bool=False, i_hour: int=TIME_NOT_SET) -> int:
         # i_question_id_int: int,
         sort_order = len(QuestionM.get_all())
         print("sort_order = " + str(sort_order))
 
+        archived_bool_as_int = SQLITE_FALSE
+        if i_archived:
+            archived_bool_as_int = SQLITE_TRUE
+
         db_connection = DbHelperM.get_db_connection()
         db_cursor = db_connection.cursor()
         db_cursor.execute(
-            "INSERT INTO " + DbSchemaM.QuestionTable.name + "("
-            + DbSchemaM.QuestionTable.Cols.sort_order + ", "
-            + DbSchemaM.QuestionTable.Cols.title + ", "
-            + DbSchemaM.QuestionTable.Cols.question
-            + ") VALUES (?, ?, ?)",
-            (sort_order, i_title_str, i_question_str)
+            "INSERT INTO " + DbSchemaM.HabitTable.name + "("
+            + DbSchemaM.HabitTable.Cols.sort_order + ", "
+            + DbSchemaM.HabitTable.Cols.title + ", "
+            + DbSchemaM.HabitTable.Cols.description + ", "
+            + DbSchemaM.HabitTable.Cols.archived + ", "
+            + DbSchemaM.HabitTable.Cols.hour
+            + ") VALUES (?, ?, ?, ?, ?)",
+            (sort_order, i_title_str, i_question_str, archived_bool_as_int, i_hour)
         )
         db_connection.commit()
 
@@ -239,8 +263,8 @@ class QuestionM:
         db_connection = DbHelperM.get_db_connection()
         db_cursor = db_connection.cursor()
         db_cursor_result = db_cursor.execute(
-            "SELECT * FROM " + DbSchemaM.QuestionTable.name
-            + " WHERE " + DbSchemaM.QuestionTable.Cols.id + "=" + str(i_id_it)
+            "SELECT * FROM " + DbSchemaM.HabitTable.name
+            + " WHERE " + DbSchemaM.HabitTable.Cols.id + "=" + str(i_id_it)
         )
         journal_db_te = db_cursor_result.fetchone()
         db_connection.commit()
@@ -256,9 +280,9 @@ class QuestionM:
         db_connection = DbHelperM.get_db_connection()
         db_cursor = db_connection.cursor()
         db_cursor_result = db_cursor.execute(
-            "SELECT * FROM " + DbSchemaM.QuestionTable.name
-            + " WHERE " + DbSchemaM.QuestionTable.Cols.archived + "=" + str(show_archived_questions_bool_as_int)
-            + " ORDER BY " + DbSchemaM.QuestionTable.Cols.sort_order
+            "SELECT * FROM " + DbSchemaM.HabitTable.name
+            + " WHERE " + DbSchemaM.HabitTable.Cols.archived + "=" + str(show_archived_questions_bool_as_int)
+            + " ORDER BY " + DbSchemaM.HabitTable.Cols.hour + ", " + DbSchemaM.HabitTable.Cols.sort_order
         )
         journal_db_te_list = db_cursor_result.fetchall()
         db_connection.commit()
@@ -270,9 +294,9 @@ class QuestionM:
         db_connection = DbHelperM.get_db_connection()
         db_cursor = db_connection.cursor()
         db_cursor.execute(
-            "UPDATE " + DbSchemaM.QuestionTable.name
-            + " SET " + DbSchemaM.QuestionTable.Cols.sort_order + " = ?"
-            + " WHERE " + DbSchemaM.QuestionTable.Cols.id + " = ?",
+            "UPDATE " + DbSchemaM.HabitTable.name
+            + " SET " + DbSchemaM.HabitTable.Cols.sort_order + " = ?"
+            + " WHERE " + DbSchemaM.HabitTable.Cols.id + " = ?",
             (str(i_sort_order), str(i_id))
         )
         db_connection.commit()
@@ -282,9 +306,9 @@ class QuestionM:
         db_connection = DbHelperM.get_db_connection()
         db_cursor = db_connection.cursor()
         db_cursor.execute(
-            "UPDATE " + DbSchemaM.QuestionTable.name
-            + " SET " + DbSchemaM.QuestionTable.Cols.hour + " = ?"
-            + " WHERE " + DbSchemaM.QuestionTable.Cols.id + " = ?",
+            "UPDATE " + DbSchemaM.HabitTable.name
+            + " SET " + DbSchemaM.HabitTable.Cols.hour + " = ?"
+            + " WHERE " + DbSchemaM.HabitTable.Cols.id + " = ?",
             (str(i_new_hour), str(i_id_it))
         )
         db_connection.commit()
@@ -294,9 +318,9 @@ class QuestionM:
         db_connection = DbHelperM.get_db_connection()
         db_cursor = db_connection.cursor()
         db_cursor.execute(
-            "UPDATE " + DbSchemaM.QuestionTable.name
-            + " SET " + DbSchemaM.QuestionTable.Cols.title + " = ?"
-            + " WHERE " + DbSchemaM.QuestionTable.Cols.id + " = ?",
+            "UPDATE " + DbSchemaM.HabitTable.name
+            + " SET " + DbSchemaM.HabitTable.Cols.title + " = ?"
+            + " WHERE " + DbSchemaM.HabitTable.Cols.id + " = ?",
             (i_new_text_sg, str(i_id_it))
         )
         db_connection.commit()
@@ -306,9 +330,9 @@ class QuestionM:
         db_connection = DbHelperM.get_db_connection()
         db_cursor = db_connection.cursor()
         db_cursor.execute(
-            "UPDATE " + DbSchemaM.QuestionTable.name
-            + " SET " + DbSchemaM.QuestionTable.Cols.question + " = ?"
-            + " WHERE " + DbSchemaM.QuestionTable.Cols.id + " = ?",
+            "UPDATE " + DbSchemaM.HabitTable.name
+            + " SET " + DbSchemaM.HabitTable.Cols.description + " = ?"
+            + " WHERE " + DbSchemaM.HabitTable.Cols.id + " = ?",
             (i_new_text_sg, str(i_id_it))
         )
         db_connection.commit()
@@ -323,9 +347,9 @@ class QuestionM:
         db_connection = DbHelperM.get_db_connection()
         db_cursor = db_connection.cursor()
         db_cursor.execute(
-            "UPDATE " + DbSchemaM.QuestionTable.name
-            + " SET " + DbSchemaM.QuestionTable.Cols.archived + " = ?"
-            + " WHERE " + DbSchemaM.QuestionTable.Cols.id + " = ?",
+            "UPDATE " + DbSchemaM.HabitTable.name
+            + " SET " + DbSchemaM.HabitTable.Cols.archived + " = ?"
+            + " WHERE " + DbSchemaM.HabitTable.Cols.id + " = ?",
             (str(archived_bool_as_int), str(i_id_it))
         )
         db_connection.commit()
@@ -340,8 +364,8 @@ class QuestionM:
         db_connection = DbHelperM.get_db_connection()
         db_cursor = db_connection.cursor()
         db_cursor.execute(
-            "DELETE FROM " + DbSchemaM.QuestionTable.name
-            + " WHERE " + DbSchemaM.QuestionTable.Cols.id + "=" + str(i_id_it)
+            "DELETE FROM " + DbSchemaM.HabitTable.name
+            + " WHERE " + DbSchemaM.HabitTable.Cols.id + "=" + str(i_id_it)
         )
 
         db_cursor.execute(
@@ -350,6 +374,84 @@ class QuestionM:
             + " WHERE " + DbSchemaM.DiaryEntryTable.Cols.question_ref + "=" + str(i_id_it)
         )
 
+        db_connection.commit()
+
+
+class JournalM:
+    def __init__(
+    self, i_id: int, i_order: int, i_title: str, i_description: str) -> None:
+        self.id_int = i_id
+        self.sort_order_int = i_order
+        self.title_str = i_title
+        self.description_str = i_description
+
+    @staticmethod
+    def add(i_title_str: str, i_description: str) -> int:
+        sort_order = len(JournalM.get_all())
+        print("sort_order = " + str(sort_order))
+
+        db_connection = DbHelperM.get_db_connection()
+        db_cursor = db_connection.cursor()
+        db_cursor.execute(
+            "INSERT INTO " + DbSchemaM.JournalTable.name + "("
+            + DbSchemaM.JournalTable.Cols.sort_order + ", "
+            + DbSchemaM.JournalTable.Cols.title + ", "
+            + DbSchemaM.JournalTable.Cols.description
+            + ") VALUES (?, ?, ?)",
+            (sort_order, i_title_str, i_description)
+        )
+        db_connection.commit()
+
+        journal_id_int = db_cursor.lastrowid
+        return journal_id_int
+
+    @staticmethod
+    def get(i_id_it):
+        db_connection = DbHelperM.get_db_connection()
+        db_cursor = db_connection.cursor()
+        db_cursor_result = db_cursor.execute(
+            "SELECT * FROM " + DbSchemaM.JournalTable.name
+            + " WHERE " + DbSchemaM.JournalTable.Cols.id + "=" + str(i_id_it)
+        )
+        journal_db_te = db_cursor_result.fetchone()
+        db_connection.commit()
+
+        return JournalM(*journal_db_te)
+
+    @staticmethod
+    def get_all():
+        db_connection = DbHelperM.get_db_connection()
+        db_cursor = db_connection.cursor()
+        db_cursor_result = db_cursor.execute(
+            "SELECT * FROM " + DbSchemaM.JournalTable.name
+        )
+        journal_db_te_list = db_cursor_result.fetchall()
+        db_connection.commit()
+
+        return [JournalM(*journal_db_te) for journal_db_te in journal_db_te_list]
+
+    @staticmethod
+    def update_title(i_id_it, i_new_text_sg):
+        db_connection = DbHelperM.get_db_connection()
+        db_cursor = db_connection.cursor()
+        db_cursor.execute(
+            "UPDATE " + DbSchemaM.JournalTable.name
+            + " SET " + DbSchemaM.JournalTable.Cols.title + " = ?"
+            + " WHERE " + DbSchemaM.JournalTable.Cols.id + " = ?",
+            (i_new_text_sg, str(i_id_it))
+        )
+        db_connection.commit()
+
+    @staticmethod
+    def update_description(i_id_it, i_new_text_sg):
+        db_connection = DbHelperM.get_db_connection()
+        db_cursor = db_connection.cursor()
+        db_cursor.execute(
+            "UPDATE " + DbSchemaM.JournalTable.name
+            + " SET " + DbSchemaM.JournalTable.Cols.description + " = ?"
+            + " WHERE " + DbSchemaM.JournalTable.Cols.id + " = ?",
+            (i_new_text_sg, str(i_id_it))
+        )
         db_connection.commit()
 
 
@@ -567,6 +669,7 @@ class DiaryEntryM:
             + " AND " + DbSchemaM.DiaryEntryTable.Cols.date_added + "<" + str(start_of_day_unixtime_it + 24 * 3600)
             + " AND " + DbSchemaM.DiaryEntryTable.Cols.question_ref + "=" + str(i_question_id)
         )
+
         diary_db_te_list = db_cursor_result.fetchall()
         for diary_db_te in diary_db_te_list:
             ret_diary_list.append(DiaryEntryM(*diary_db_te))
@@ -693,6 +796,20 @@ def backup_db_file():
 
 def populate_db_with_test_data():
     delta_day_it = 24 * 60 * 60
+
+    meditation_id_int = QuestionM.add(
+        "Meditation",
+        "Meditation description",
+        i_hour=10)
+    lunch_id_int = QuestionM.add(
+        "Lunch",
+        "Lunch description",
+        i_hour=12)
+
+    gratitude_journal_id_int = JournalM.add("Gratitude", "")
+    mind_cultivation_journal_id_int = JournalM.add("Mind cultivation", "")
+    contribution_journal_id_int = JournalM.add("Contribution", "Contribution and generosity")
+    wisdom_journal_id_int = JournalM.add("Wisdom", "")
 
     gratitude_id_int = QuestionM.add(
         QuestionSetupEnum.gratitude.name.capitalize(),

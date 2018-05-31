@@ -8,7 +8,7 @@ from PyQt5 import QtWidgets
 import wbd.gui.calendar
 import wbd.gui.central
 import wbd.model
-import wbd.gui.questions
+import wbd.gui.habits
 import wbd.gui.wisdom
 import wbd.wbd_global
 import wbd.gui.quotes
@@ -26,7 +26,7 @@ class EventSource(enum.Enum):
     tags = 5
 
 
-class WellBeingWindow(QtWidgets.QMainWindow):
+class MainWindow(QtWidgets.QMainWindow):
     """
     The main window of the application
     Suffix explanation:
@@ -45,34 +45,24 @@ class WellBeingWindow(QtWidgets.QMainWindow):
             data_storage_str = "{data stored in memory}"
         else:
             data_storage_str = "{data stored on hard drive}"
-        self.setWindowTitle(wbd.wbd_global.BWB_APPLICATION_NAME_STR + " ["
-                            + wbd.wbd_global.BWB_APPLICATION_VERSION_STR + "] "
-                            + data_storage_str)
+        self.setWindowTitle(
+            wbd.wbd_global.BWB_APPLICATION_NAME_STR + " ["
+            + wbd.wbd_global.BWB_APPLICATION_VERSION_STR + "] "
+            + data_storage_str
+        )
         self.setWindowIcon(QtGui.QIcon("icon.png"))
         self.setStyleSheet("* {selection-background-color:#72ba5e;};")
         # self.setStyleSheet("selection-background-color:#72ba5e; font-size:10.5pt")
 
         # Setup of widgets..
-        # ..calendar
-        calendar_dock_qdw2 = QtWidgets.QDockWidget("Calendar", self)
-        calendar_dock_qdw2.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea)
-        calendar_dock_qdw2.setFeatures(QtWidgets.QDockWidget.NoDockWidgetFeatures)
-        self.custom_calendar_w3 = wbd.gui.calendar.CompositeCalendarWidget()
-        self.custom_calendar_w3.setFixedHeight(240)
-        self.custom_calendar_w3.calendar_widget.selectionChanged.connect(self.on_calendar_selection_changed)
-        # -TODO: Move this into the calendar widget class
-        ### self.custom_calendar_w3.calendar_widget.currentPageChanged.connect(self.on_calendar_page_changed)
-        calendar_dock_qdw2.setWidget(self.custom_calendar_w3)
-        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, calendar_dock_qdw2)
         # ..questions
-        self.questions_dock_qw2 = QtWidgets.QDockWidget("Journal Questions", self) # "Daily questions"
+        self.questions_dock_qw2 = QtWidgets.QDockWidget("Schedule and habits", self)  # "Daily questions"
         self.questions_dock_qw2.setFeatures(
             QtWidgets.QDockWidget.DockWidgetMovable |
             QtWidgets.QDockWidget.DockWidgetFloatable)
-        self.questions_composite_w3 = wbd.gui.questions.PracticeCompositeWidget()
+        self.questions_composite_w3 = wbd.gui.habits.HabitCompositeWidget()
         self.questions_composite_w3.item_selection_changed_signal.connect(self.on_practice_item_selection_changed)
         self.questions_dock_qw2.setWidget(self.questions_composite_w3)
-
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.questions_dock_qw2)
         # ..central widget (which **holds the diary** etc)
         self.central_widget_w3 = wbd.gui.central.CompositeCentralWidget()
@@ -80,17 +70,18 @@ class WellBeingWindow(QtWidgets.QMainWindow):
         self.central_widget_w3.journal_button_toggled_signal.connect(self.update_gui)
         self.central_widget_w3.text_added_to_diary_signal.connect(self.update_gui)
 
-        self.central_widget_w3.diary_widget.context_menu_change_date_signal.connect(
-            self.update_gui)
-        self.central_widget_w3.diary_widget.context_menu_delete_signal.connect(
-            self.update_gui)
+        self.central_widget_w3.diary_widget.context_menu_change_date_signal.connect(self.update_gui)
+        self.central_widget_w3.diary_widget.context_menu_delete_signal.connect(self.update_gui)
 
-        self.central_widget_w3.adding_text_to_diary_textedit_w6.key_press_0_9_for_question_list_signal\
-            .connect(self.on_central_key_press_0_9_for_question_list)
-        self.central_widget_w3.adding_text_to_diary_textedit_w6.key_press_up_for_question_list_signal\
-            .connect(self.on_central_key_press_up_for_question_list)
-        self.central_widget_w3.adding_text_to_diary_textedit_w6.key_press_down_for_question_list_signal\
-            .connect(self.on_central_key_press_down_for_question_list)
+        self.central_widget_w3.adding_text_to_diary_textedit_w6.key_press_0_9_for_question_list_signal.connect(
+            self.on_central_key_press_0_9_for_question_list
+        )
+        self.central_widget_w3.adding_text_to_diary_textedit_w6.key_press_up_for_question_list_signal.connect(
+            self.on_central_key_press_up_for_question_list
+        )
+        self.central_widget_w3.adding_text_to_diary_textedit_w6.key_press_down_for_question_list_signal.connect(
+            self.on_central_key_press_down_for_question_list
+        )
 
         self.questions_composite_w3.current_row_changed_signal.connect(self.on_question_current_row_changed)
 
@@ -107,6 +98,7 @@ class WellBeingWindow(QtWidgets.QMainWindow):
         quotes_dock_qw2.setWidget(self.quotes_composite_w3)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, quotes_dock_qw2)
         quotes_dock_qw2.setAllowedAreas(QtCore.Qt.RightDockWidgetArea | QtCore.Qt.LeftDockWidgetArea)
+
         # ..tags
         tags_dock_qw2 = QtWidgets.QDockWidget("Search and Tags", self)
         self.tags_composite_w3 = wbd.gui.search_and_tags.SearchAndTagsCompositeWidget()
@@ -205,19 +197,19 @@ class WellBeingWindow(QtWidgets.QMainWindow):
 
     def on_central_key_press_0_9_for_question_list(self, i_int):
         logging.debug("Entered on_central_key_press_for_question_list")
-        self.questions_composite_w3.list_widget.setCurrentRow(i_int)
+        self.questions_composite_w3.schedule_clw.setCurrentRow(i_int)
 
     def on_central_key_press_up_for_question_list(self):
-        questions_current_row_int = self.questions_composite_w3.list_widget.currentRow()
+        questions_current_row_int = self.questions_composite_w3.schedule_clw.currentRow()
         if questions_current_row_int <= 0:
             return
-        self.questions_composite_w3.list_widget.setCurrentRow(questions_current_row_int - 1)
+        self.questions_composite_w3.schedule_clw.setCurrentRow(questions_current_row_int - 1)
 
     def on_central_key_press_down_for_question_list(self):
-        questions_current_row_int = self.questions_composite_w3.list_widget.currentRow()
-        if questions_current_row_int >= self.questions_composite_w3.list_widget.count() - 1:
+        questions_current_row_int = self.questions_composite_w3.schedule_clw.currentRow()
+        if questions_current_row_int >= self.questions_composite_w3.schedule_clw.count() - 1:
             return
-        self.questions_composite_w3.list_widget.setCurrentRow(questions_current_row_int + 1)
+        self.questions_composite_w3.schedule_clw.setCurrentRow(questions_current_row_int + 1)
 
     def keyPressEvent(self, iQKeyEvent):
         """
@@ -274,7 +266,6 @@ class WellBeingWindow(QtWidgets.QMainWindow):
         if i_event_source == EventSource.practice_details:
             return
         self.central_widget_w3.update_gui()
-        self.custom_calendar_w3.update_gui()
         if i_event_source == EventSource.undefined or i_event_source == EventSource.calendar_selection_changed:
             self.questions_composite_w3.update_gui()
             # -it's important that we don't run this update when other widgets are selected, because
