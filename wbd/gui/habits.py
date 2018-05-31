@@ -146,9 +146,10 @@ class HabitCompositeWidget(QtWidgets.QWidget):
             else:
                 hour_int = wbd.model.TIME_NOT_SET
             wbd.model.QuestionM.update_hour(wbd.wbd_global.active_question_id_it, hour_int)
+            plain_text_str = self.edit_dialog.description_qpte.toPlainText()
             wbd.model.QuestionM.update_description(
                 wbd.wbd_global.active_question_id_it,
-                self.edit_dialog.description_qpte.toPlainText()
+                plain_text_str
             )
         else:
             pass
@@ -459,8 +460,8 @@ class EditDialog(QtWidgets.QDialog):
 
         self.setModal(True)
 
-        self.setFixedWidth(500)
-        self.setFixedHeight(800)
+        self.setMinimumWidth(400)
+        self.setMinimumHeight(600)
 
         self.updating_gui_bool = False
 

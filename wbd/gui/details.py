@@ -20,8 +20,8 @@ class CompositeDetailsWidget(QtWidgets.QWidget):
 
         self.qtextedit = QtWidgets.QTextEdit()
         self.qtextedit.setFontPointSize(16)
-        self.qtextedit.textChanged.connect(self.on_textedit_changed)
-        # self.qtextedit.setReadOnly(True)
+        # self.qtextedit.textChanged.connect(self.on_textedit_changed)
+        self.qtextedit.setReadOnly(True)
 
         vbox2.addWidget(self.qtextedit)
 
@@ -58,7 +58,8 @@ class CompositeDetailsWidget(QtWidgets.QWidget):
             self.title_qll.setText('<span style="font-size: 14pt">' + question.title_str + '</span>')
 
             # new_question_str = wbd.wbd_global.create_links_using_delimiters(question_str, "<", ">")
-            new_question_str = re.sub(r'<(.*?)>', r'<a href="\1">\1</a>', question_str)
+            # new_question_str = re.sub(r'<(.*?)>', r'<a href="\1">\1</a>', question_str)
+            new_question_str = question_str
             logging.debug("new_question_str = " + new_question_str)
 
             # html_str = ("<span>" + " " + new_question_str + "</span>")
@@ -73,7 +74,9 @@ class CompositeDetailsWidget(QtWidgets.QWidget):
             self.question_info_shared_qll.setText("<i>title empty</i>")
 
     def on_textedit_changed(self):
+        """
         wbd.model.QuestionM.update_description(
             wbd.wbd_global.active_question_id_it,
             self.qtextedit.toPlainText()
         )
+        """
