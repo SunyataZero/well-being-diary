@@ -215,8 +215,8 @@ class DiaryListCompositeWidget(QtWidgets.QWidget):
             if wbd_global.active_view_viewenum == wbd_global.ViewEnum.question_view:
                 pass
             elif wbd_global.active_view_viewenum == wbd_global.ViewEnum.daily_overview:
-                if diary_entry.question_ref_it != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
-                    questionm = wbd.model.QuestionM.get(diary_entry.question_ref_it)
+                if diary_entry.habit_ref_it != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
+                    questionm = wbd.model.QuestionM.get(diary_entry.habit_ref_it)
                     question_title_sg = str(questionm.title_str)
                     # left_qlabel = QtWidgets.QLabel(question_title_sg)
                 else:
@@ -241,7 +241,8 @@ class DiaryListCompositeWidget(QtWidgets.QWidget):
 
             listitem_cqll = CustomQLabel(formatted_label_text_sg, diary_entry.id)
             listitem_cqll.setWordWrap(True)
-            if diary_entry.favorite_it == wbd.model.SQLITE_TRUE:
+            if diary_entry.rating_int == wbd.model.SQLITE_TRUE:
+                # -TODO: Change to rating 1-3 here
                 listitem_cqll.setStyleSheet("background-color:rgba(180,230,180,0.3);")  # #d0e8c9 rgba(0,255,0,0.3);
             listitem_cqll.mouse_pressed_signal.connect(self.on_custom_label_mouse_pressed)
             listitem_cqll.setTextInteractionFlags(

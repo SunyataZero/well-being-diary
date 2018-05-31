@@ -35,6 +35,7 @@ diary_view_locked_bool = False
 BWB_APPLICATION_VERSION_STR = "prototype 4"
 BWB_APPLICATION_NAME_STR = "Well-Being Journal"
 NO_ACTIVE_QUESTION_INT = -1
+NO_ACTIVE_JOURNAL_INT = -1
 
 active_view_viewenum = ViewEnum.daily_overview
 active_date_qdate = QtCore.QDate.currentDate()

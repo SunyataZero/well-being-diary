@@ -43,32 +43,8 @@ class CompositeCentralWidget(QtWidgets.QWidget):
 
         hbox_l3 = QtWidgets.QHBoxLayout()
         self.vbox_l2.addLayout(hbox_l3)
-        self.view_type_qll = QtWidgets.QLabel()
-        hbox_l3.addWidget(self.view_type_qll)
 
-        hbox_l3.addStretch()
-        self.view_radio_qbuttongroup = QtWidgets.QButtonGroup(self)
-        # noinspection PyUnresolvedReferences
-        self.view_radio_qbuttongroup.buttonToggled.connect(self.on_view_radio_button_toggled)
-        self.daily_overview_qrb = QtWidgets.QRadioButton("Daily Overview")
-        self.view_radio_qbuttongroup.addButton(
-            self.daily_overview_qrb,
-            wbd.wbd_global.ViewEnum.daily_overview.value)
-        hbox_l3.addWidget(self.daily_overview_qrb)
-        self.question_view_qrb = QtWidgets.QRadioButton("Question View")
-        hbox_l3.addWidget(self.question_view_qrb)
-        self.view_radio_qbuttongroup.addButton(
-            self.question_view_qrb,
-            wbd.wbd_global.ViewEnum.question_view.value)
-        self.search_view_qrb = QtWidgets.QRadioButton("Search")
-        self.view_radio_qbuttongroup.addButton(
-            self.search_view_qrb,
-            wbd.wbd_global.ViewEnum.search_view.value)
-        hbox_l3.addWidget(self.search_view_qrb)
-        self.lock_view_qpb = QtWidgets.QPushButton("Lock view")
-        self.lock_view_qpb.setCheckable(True)
-        self.lock_view_qpb.clicked.connect(self.on_lock_view_clicked)
-        hbox_l3.addWidget(self.lock_view_qpb)
+        hbox_l3.addStretch(1)
         self.prev_page_qpb = QtWidgets.QPushButton("<")
         self.prev_page_qpb.setFixedWidth(30)
         self.prev_page_qpb.clicked.connect(self.on_prev_page_button_clicked)
@@ -148,9 +124,24 @@ class CompositeCentralWidget(QtWidgets.QWidget):
         edit_diary_entry_vbox_l4 = QtWidgets.QVBoxLayout()
         ###diary_entry_label = QtWidgets.QLabel("<h4>New diary entry </h4>")
         ###edit_diary_entry_vbox_l4.addWidget(diary_entry_label)
-        self.favorite_qpb = QtWidgets.QPushButton("Favorite")
-        self.favorite_qpb.setCheckable(True)
-        edit_diary_entry_vbox_l4.addWidget(self.favorite_qpb)
+
+        self.journals_qcb = QtWidgets.QComboBox()
+        self.journals_qcb.setMaximumWidth(100)
+        for journal in wbd.model.JournalM.get_all():
+            self.journals_qcb.addItem(journal.title_str)
+        edit_diary_entry_vbox_l4.addWidget(self.journals_qcb)
+
+        self.rating_qsr = QtWidgets.QSlider()
+        self.rating_qsr.setOrientation(QtCore.Qt.Horizontal)
+        self.rating_qsr.setMaximumWidth(100)
+        self.rating_qsr.setMinimum(1)
+        self.rating_qsr.setMaximum(3)
+        self.rating_qsr.setTickPosition(QtWidgets.QSlider.TicksAbove)
+        self.rating_qsr.setTickInterval(1)
+        self.rating_qsr.setSingleStep(1)
+        self.rating_qsr.setPageStep(1)
+        edit_diary_entry_vbox_l4.addWidget(self.rating_qsr)
+
         self.add_bn_w3 = QtWidgets.QPushButton(ADD_DIARY_BN_TEXT_STR)
         self.add_bn_w3.setFixedHeight(40)
         edit_diary_entry_vbox_l4.addWidget(self.add_bn_w3)
@@ -167,8 +158,6 @@ class CompositeCentralWidget(QtWidgets.QWidget):
 
         self.vbox_l2.addLayout(adding_area_hbox_l3)
 
-        self.daily_overview_qrb.setChecked(True)
-
         self.update_gui()
 
     """
@@ -179,9 +168,6 @@ class CompositeCentralWidget(QtWidgets.QWidget):
     def hour_slider_changed(self, i_value: int):
         qtime = QtCore.QTime(i_value, 0)
         self.time_of_day_qte.setTime(qtime)
-
-    def on_lock_view_clicked(self, i_checked: bool):
-        wbd.wbd_global.diary_view_locked_bool = i_checked
 
     def on_cancel_clicked(self):
         self.adding_text_to_diary_textedit_w6.clear()
@@ -208,13 +194,6 @@ class CompositeCentralWidget(QtWidgets.QWidget):
             wbd.wbd_global.current_page_number_int -= 1
         self.update_gui()
 
-    def on_view_radio_button_toggled(self):
-        if self.updating_gui_bool:
-            return
-        wbd.wbd_global.current_page_number_int = 0  # -resetting
-        wbd.wbd_global.active_view_viewenum = wbd.wbd_global.ViewEnum(self.view_radio_qbuttongroup.checkedId())
-        self.update_gui()
-
     def on_journal_button_toggled(self):
         wbd.wbd_global.active_question_id_it = self.journal_qbuttongroup.checkedId()
         self.update_gui()
@@ -224,18 +203,6 @@ class CompositeCentralWidget(QtWidgets.QWidget):
         self.updating_gui_bool = True
 
         self.page_number_qll.setText(str(wbd.wbd_global.current_page_number_int + 1))
-
-        if wbd.wbd_global.active_view_viewenum == wbd.wbd_global.ViewEnum.daily_overview:
-            self.view_type_qll.setText("<h3>Daily Overview</h3>")
-            self.daily_overview_qrb.setChecked(True)
-        elif wbd.wbd_global.active_view_viewenum == wbd.wbd_global.ViewEnum.question_view:
-            self.view_type_qll.setText("<h3>Question View</h3>")
-            self.question_view_qrb.setChecked(True)
-        elif wbd.wbd_global.active_view_viewenum == wbd.wbd_global.ViewEnum.search_view:
-            self.view_type_qll.setText("<h3>Search View</h3>")
-            self.search_view_qrb.setChecked(True)
-        else:
-            raise Exception("Should not be able to get here")
 
         if self.editing_diary_entry_int != NO_DIARY_ENTRY_EDITING_INT:
             self.add_bn_w3.setText(EDIT_DIARY_BN_TEXT_STR)

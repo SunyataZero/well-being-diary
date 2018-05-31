@@ -12,15 +12,62 @@ class SearchAndTagsCompositeWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
 
+        self.updating_gui_bool = False
+
         self.setMaximumWidth(380)
 
         vbox1 = QtWidgets.QVBoxLayout()
         self.setLayout(vbox1)
 
+        self.view_radio_qbuttongroup = QtWidgets.QButtonGroup(self)
+        # noinspection PyUnresolvedReferences
+        self.view_radio_qbuttongroup.buttonToggled.connect(self.on_view_radio_button_toggled)
+        self.daily_overview_qrb = QtWidgets.QRadioButton("Daily Overview")
+        self.view_radio_qbuttongroup.addButton(
+            self.daily_overview_qrb,
+            wbd.wbd_global.ViewEnum.daily_overview.value)
+        hbox_l2 = QtWidgets.QHBoxLayout()
+        vbox1.addLayout(hbox_l2)
+        hbox_l2.addWidget(self.daily_overview_qrb)
+        self.date_selection_qde = QtWidgets.QDateEdit()
+        hbox_l2.addWidget(self.date_selection_qde)
+        self.question_view_qrb = QtWidgets.QRadioButton("Question View")
+        vbox1.addWidget(self.question_view_qrb)
+        self.view_radio_qbuttongroup.addButton(
+            self.question_view_qrb,
+            wbd.wbd_global.ViewEnum.question_view.value)
+        self.search_view_qrb = QtWidgets.QRadioButton("Search")
+        self.view_radio_qbuttongroup.addButton(
+            self.search_view_qrb,
+            wbd.wbd_global.ViewEnum.search_view.value)
+        vbox1.addWidget(self.search_view_qrb)
+
+        self.view_type_qll = QtWidgets.QLabel()
+        vbox1.addWidget(self.view_type_qll)
+        self.lock_view_qpb = QtWidgets.QPushButton("Lock view")
+        self.lock_view_qpb.setCheckable(True)
+        self.lock_view_qpb.clicked.connect(self.on_lock_view_clicked)
+        vbox1.addWidget(self.lock_view_qpb)
+
+        self.daily_overview_qrb.setChecked(True)
+
         self.search_qle = QtWidgets.QLineEdit()
-        vbox1.addWidget(self.search_qle)
         self.search_qle.textChanged.connect(self.on_search_text_changed)  # textEdited
         self.search_qle.setPlaceholderText("Search")
+        vbox1.addWidget(self.search_qle)
+
+        hbox_l2 = QtWidgets.QHBoxLayout()
+        vbox1.addLayout(hbox_l2)
+        hbox_l2.addWidget(QtWidgets.QLabel("Rating"))
+        self.rating_qsr = QtWidgets.QSlider()
+        self.rating_qsr.setOrientation(QtCore.Qt.Horizontal)
+        self.rating_qsr.setMinimum(1)
+        self.rating_qsr.setMaximum(3)
+        self.rating_qsr.setTickPosition(QtWidgets.QSlider.TicksAbove)
+        self.rating_qsr.setTickInterval(1)
+        self.rating_qsr.setSingleStep(1)
+        self.rating_qsr.setPageStep(1)
+        hbox_l2.addWidget(self.rating_qsr)
 
         self.journals_qlw = QtWidgets.QListWidget()
         for journal in wbd.model.JournalM.get_all():
@@ -88,6 +135,9 @@ class SearchAndTagsCompositeWidget(QtWidgets.QWidget):
 
         self.update_gui()
 
+    def on_lock_view_clicked(self, i_checked: bool):
+        wbd.wbd_global.diary_view_locked_bool = i_checked
+
     def on_tags_current_row_changed(self, i_search_text: str):
         self.search_qle.setText(i_search_text)
 
@@ -96,7 +146,32 @@ class SearchAndTagsCompositeWidget(QtWidgets.QWidget):
         wbd.wbd_global.search_string_str = self.search_qle.text().strip()
         self.search_text_changed_signal.emit()
 
+    def on_view_radio_button_toggled(self):
+        if self.updating_gui_bool:
+            return
+        wbd.wbd_global.current_page_number_int = 0  # -resetting
+        wbd.wbd_global.active_view_viewenum = wbd.wbd_global.ViewEnum(self.view_radio_qbuttongroup.checkedId())
+
+        self.update_gui()
+        self.search_text_changed_signal.emit()
+
     def update_gui(self):
+        self.updating_gui_bool = True
+
+        if wbd.wbd_global.active_view_viewenum == wbd.wbd_global.ViewEnum.daily_overview:
+            self.view_type_qll.setText("<h3>Daily Overview</h3>")
+            self.daily_overview_qrb.setChecked(True)
+        elif wbd.wbd_global.active_view_viewenum == wbd.wbd_global.ViewEnum.question_view:
+            self.view_type_qll.setText("<h3>Question View</h3>")
+            self.question_view_qrb.setChecked(True)
+        elif wbd.wbd_global.active_view_viewenum == wbd.wbd_global.ViewEnum.search_view:
+            self.view_type_qll.setText("<h3>Search View</h3>")
+            self.search_view_qrb.setChecked(True)
+        else:
+            raise Exception("Should not be able to get here")
+
+        self.updating_gui_bool = False
+
         # reading tags from the db
         #self.hashtags_composite.update_gui()
         """

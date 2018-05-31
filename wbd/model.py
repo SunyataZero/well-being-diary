@@ -62,7 +62,9 @@ def initial_schema_and_setup(i_db_conn):
         + DbSchemaM.HabitTable.Cols.description + " TEXT NOT NULL DEFAULT '', "
         + DbSchemaM.HabitTable.Cols.archived + " INTEGER DEFAULT " + str(SQLITE_FALSE) + ", "
         + DbSchemaM.HabitTable.Cols.hour + " INTEGER DEFAULT " + str(TIME_NOT_SET) + ", "
-        + DbSchemaM.HabitTable.Cols.default_journal + " INTEGER DEFAULT " + str(SQLITE_FALSE)
+        + DbSchemaM.HabitTable.Cols.default_journal_ref
+        + " INTEGER REFERENCES " + DbSchemaM.JournalTable.name + "(" + DbSchemaM.JournalTable.Cols.id + ")"
+        + " NOT NULL DEFAULT '" + str(wbd.wbd_global.NO_ACTIVE_JOURNAL_INT) + "'"
         + ")"
     )
 
@@ -79,13 +81,14 @@ def initial_schema_and_setup(i_db_conn):
         "CREATE TABLE " + DbSchemaM.DiaryEntryTable.name + "("
         + DbSchemaM.DiaryEntryTable.Cols.id + " INTEGER PRIMARY KEY, "
         + DbSchemaM.DiaryEntryTable.Cols.date_added + " INTEGER, "
-        + DbSchemaM.DiaryEntryTable.Cols.favorite + " INTEGER NOT NULL DEFAULT '"
-        + str(SQLITE_FALSE) + "', "
-        + DbSchemaM.DiaryEntryTable.Cols.diary_entry + " TEXT, "
-        + DbSchemaM.DiaryEntryTable.Cols.question_ref
-        + " INTEGER REFERENCES " + DbSchemaM.HabitTable.name
-        + "(" + DbSchemaM.HabitTable.Cols.id + ")"
-        + " NOT NULL DEFAULT '" + str(wbd.wbd_global.NO_ACTIVE_QUESTION_INT) + "'"
+        + DbSchemaM.DiaryEntryTable.Cols.rating + " INTEGER NOT NULL DEFAULT '" + str(1) + "', "
+        + DbSchemaM.DiaryEntryTable.Cols.diary_text + " TEXT, "
+        + DbSchemaM.DiaryEntryTable.Cols.habit_ref
+        + " INTEGER REFERENCES " + DbSchemaM.HabitTable.name + "(" + DbSchemaM.HabitTable.Cols.id + ")"
+        + " NOT NULL DEFAULT '" + str(wbd.wbd_global.NO_ACTIVE_QUESTION_INT) + "',"
+        + DbSchemaM.DiaryEntryTable.Cols.journal_ref
+        + " INTEGER REFERENCES " + DbSchemaM.JournalTable.name + "(" + DbSchemaM.JournalTable.Cols.id + ")"
+        + " NOT NULL DEFAULT '" + str(wbd.wbd_global.NO_ACTIVE_JOURNAL_INT) + "'"
         + ")"
     )
 
@@ -189,7 +192,7 @@ class DbSchemaM:
             description = "description"
             archived = "archived"
             hour = "hour"
-            default_journal = "default_journal"
+            default_journal_ref = "default_journal"
 
     class DiaryEntryTable:
         name = "diary_entry"
@@ -197,9 +200,10 @@ class DbSchemaM:
         class Cols:
             id = "id"  # key
             date_added = "date_added"
-            favorite = "favorite"
-            diary_entry = "diary_entry"
-            question_ref = "question_ref"
+            rating = "rating"
+            diary_text = "diary_text"
+            habit_ref = "habit_ref"
+            journal_ref = "journal_ref"
 
     class ReminderTable:
         name = "reminder"
@@ -370,8 +374,8 @@ class QuestionM:
 
         db_cursor.execute(
             "UPDATE " + DbSchemaM.DiaryEntryTable.name
-            + " SET " + DbSchemaM.DiaryEntryTable.Cols.question_ref + "=" + SQLITE_NULL
-            + " WHERE " + DbSchemaM.DiaryEntryTable.Cols.question_ref + "=" + str(i_id_it)
+            + " SET " + DbSchemaM.DiaryEntryTable.Cols.habit_ref + "=" + SQLITE_NULL
+            + " WHERE " + DbSchemaM.DiaryEntryTable.Cols.habit_ref + "=" + str(i_id_it)
         )
 
         db_connection.commit()
@@ -456,12 +460,13 @@ class JournalM:
 
 
 class DiaryEntryM:
-    def __init__(self, i_id, i_date_added_it, i_favorite_it, i_diary_text, i_question_ref_it):
+    def __init__(self, i_id, i_date_added_it, i_rating: int, i_diary_text, i_habit_ref_it, i_journal_ref: int):
         self.id = i_id
         self.date_added_it = i_date_added_it
-        self.favorite_it = i_favorite_it
+        self.rating_int = i_rating
         self.diary_text = i_diary_text
-        self.question_ref_it = i_question_ref_it
+        self.habit_ref_it = i_habit_ref_it
+        self.journal_ref_it = i_journal_ref
 
     @staticmethod
     def add(i_date_added_it, i_favorite_it, i_diary_text, i_journal_ref_it: int):
@@ -470,9 +475,9 @@ class DiaryEntryM:
         db_cursor.execute(
             "INSERT INTO " + DbSchemaM.DiaryEntryTable.name + "("
             + DbSchemaM.DiaryEntryTable.Cols.date_added + ", "
-            + DbSchemaM.DiaryEntryTable.Cols.favorite + ", "
-            + DbSchemaM.DiaryEntryTable.Cols.diary_entry + ", "
-            + DbSchemaM.DiaryEntryTable.Cols.question_ref
+            + DbSchemaM.DiaryEntryTable.Cols.rating + ", "
+            + DbSchemaM.DiaryEntryTable.Cols.diary_text + ", "
+            + DbSchemaM.DiaryEntryTable.Cols.habit_ref
             + ") VALUES (?, ?, ?, ?)",
             (i_date_added_it, i_favorite_it, i_diary_text, i_journal_ref_it)
         )
@@ -486,21 +491,21 @@ class DiaryEntryM:
         db_cursor = db_connection.cursor()
         db_cursor.execute(
             "UPDATE " + DbSchemaM.DiaryEntryTable.name
-            + " SET " + DbSchemaM.DiaryEntryTable.Cols.diary_entry + " = ?"
+            + " SET " + DbSchemaM.DiaryEntryTable.Cols.diary_text + " = ?"
             + " WHERE " + DbSchemaM.DiaryEntryTable.Cols.id + " = ?",
             (i_new_text_sg, str(i_id_it))
         )
         db_connection.commit()
 
     @staticmethod
-    def update_question(i_id_it, i_question_ref_id_int):
+    def update_question(i_id_it, i_habit_ref_id_int):
         db_connection = DbHelperM.get_db_connection()
         db_cursor = db_connection.cursor()
         db_cursor.execute(
             "UPDATE " + DbSchemaM.DiaryEntryTable.name
-            + " SET " + DbSchemaM.DiaryEntryTable.Cols.question_ref + " = ?"
+            + " SET " + DbSchemaM.DiaryEntryTable.Cols.habit_ref + " = ?"
             + " WHERE " + DbSchemaM.DiaryEntryTable.Cols.id + " = ?",
-            (str(i_question_ref_id_int), str(i_id_it))
+            (str(i_habit_ref_id_int), str(i_id_it))
         )
         db_connection.commit()
 
@@ -510,7 +515,7 @@ class DiaryEntryM:
         db_cursor = db_connection.cursor()
         db_cursor.execute(
             "UPDATE " + DbSchemaM.DiaryEntryTable.name
-            + " SET " + DbSchemaM.DiaryEntryTable.Cols.question_ref + " = ?"
+            + " SET " + DbSchemaM.DiaryEntryTable.Cols.habit_ref + " = ?"
             + " WHERE " + DbSchemaM.DiaryEntryTable.Cols.id + " = ?",
             (None, str(i_id_it))
             # -Please note: We cannot use "SQLITE_NULL" (which is the string "null", instead we use None
@@ -530,14 +535,14 @@ class DiaryEntryM:
         db_connection.commit()
 
     @staticmethod
-    def update_favorite(i_id_it, i_favorite_bool_as_it):
+    def update_favorite(i_id_it, i_rating: int):
         db_connection = DbHelperM.get_db_connection()
         db_cursor = db_connection.cursor()
         db_cursor.execute(
             "UPDATE " + DbSchemaM.DiaryEntryTable.name
-            + " SET " + DbSchemaM.DiaryEntryTable.Cols.favorite + " = ?"
+            + " SET " + DbSchemaM.DiaryEntryTable.Cols.rating + " = ?"
             + " WHERE " + DbSchemaM.DiaryEntryTable.Cols.id + " = ?",
-            (str(i_favorite_bool_as_it), str(i_id_it))
+            (str(i_rating), str(i_id_it))
         )
         db_connection.commit()
 
@@ -589,7 +594,7 @@ class DiaryEntryM:
         db_cursor = db_connection.cursor()
         db_cursor_result = db_cursor.execute(
             "SELECT * FROM " + DbSchemaM.DiaryEntryTable.name
-            + " WHERE " + DbSchemaM.DiaryEntryTable.Cols.diary_entry
+            + " WHERE " + DbSchemaM.DiaryEntryTable.Cols.diary_text
             + " LIKE " + '"%' + i_search_term_str + '%"'
             + " ORDER BY " + DbSchemaM.DiaryEntryTable.Cols.date_added + " DESC "
             + " LIMIT " + str(wbd.wbd_global.diary_entries_per_page_int)
@@ -611,7 +616,7 @@ class DiaryEntryM:
         db_cursor = db_connection.cursor()
         db_cursor_result = db_cursor.execute(
             "SELECT * FROM " + DbSchemaM.DiaryEntryTable.name
-            + " WHERE " + DbSchemaM.DiaryEntryTable.Cols.question_ref + "=" + str(i_question_id_it)
+            + " WHERE " + DbSchemaM.DiaryEntryTable.Cols.habit_ref + "=" + str(i_question_id_it)
             + " ORDER BY " + DbSchemaM.DiaryEntryTable.Cols.date_added + " DESC "
             + " LIMIT " + str(wbd.wbd_global.diary_entries_per_page_int)
             + " OFFSET " + str(i_page_number_int * wbd.wbd_global.diary_entries_per_page_int)
@@ -667,7 +672,7 @@ class DiaryEntryM:
             "SELECT * FROM " + DbSchemaM.DiaryEntryTable.name
             + " WHERE " + DbSchemaM.DiaryEntryTable.Cols.date_added + ">=" + str(start_of_day_unixtime_it)
             + " AND " + DbSchemaM.DiaryEntryTable.Cols.date_added + "<" + str(start_of_day_unixtime_it + 24 * 3600)
-            + " AND " + DbSchemaM.DiaryEntryTable.Cols.question_ref + "=" + str(i_question_id)
+            + " AND " + DbSchemaM.DiaryEntryTable.Cols.habit_ref + "=" + str(i_question_id)
         )
 
         diary_db_te_list = db_cursor_result.fetchall()
@@ -685,7 +690,7 @@ class DiaryEntryM:
         db_cursor = db_connection.cursor()
         db_cursor_result = db_cursor.execute(
             "SELECT * FROM " + DbSchemaM.DiaryEntryTable.name
-            + " WHERE " + DbSchemaM.DiaryEntryTable.Cols.diary_entry
+            + " WHERE " + DbSchemaM.DiaryEntryTable.Cols.diary_text
             + " LIKE " + '"%' + i_special_char_str + '%"'
         )
         # -http://sqlite.org/lang_expr.html#like
