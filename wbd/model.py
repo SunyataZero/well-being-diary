@@ -788,6 +788,8 @@ def export_all():
         time_datetime = datetime.date.fromtimestamp(diary_item.date_added_it)
         date_str = time_datetime.strftime("%Y-%m-%d")
         csv_writer.writerow((date_str, diary_item.diary_text))
+    for question_item in QuestionM.get_all():
+        csv_writer.writerow((question_item.title_str, question_item.question_str))
 
 
 def backup_db_file():
