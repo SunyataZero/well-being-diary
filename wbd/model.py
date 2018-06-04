@@ -225,12 +225,12 @@ class DbSchemaM:
 
 class QuestionM:
     def __init__(
-    self, i_id: int, i_order: int, i_title: str, i_question: str, i_archived: bool, i_hour: int, i_labels: str,
+    self, i_id: int, i_order: int, i_title: str, i_description: str, i_archived: bool, i_hour: int, i_labels: str,
     ) -> None:
         self.id_int = i_id
         self.sort_order_int = i_order
         self.title_str = i_title
-        self.question_str = i_question
+        self.description_str = i_description
         self.archived_bl = i_archived
         self.hour_int = i_hour
         self.labels_str = i_labels
@@ -783,13 +783,15 @@ class ReminderM:
 
 
 def export_all():
+    # If we want to automate this: https://stackoverflow.com/questions/11637293/iterate-over-object-attributes-in-python
     csv_writer = csv.writer(open("exported.csv", "w"))
     for diary_item in DiaryEntryM.get_all():
         time_datetime = datetime.date.fromtimestamp(diary_item.date_added_it)
         date_str = time_datetime.strftime("%Y-%m-%d")
         csv_writer.writerow((date_str, diary_item.diary_text))
     for question_item in QuestionM.get_all():
-        csv_writer.writerow((question_item.title_str, question_item.question_str))
+        csv_writer.writerow((question_item.title_str, question_item.title_str))
+        csv_writer.writerow((question_item.title_str, question_item.description_str))
 
 
 def backup_db_file():
