@@ -18,12 +18,19 @@ class CompositeDetailsWidget(QtWidgets.QWidget):
         self.title_qll = QtWidgets.QLabel()
         vbox2.addWidget(self.title_qll)
 
+        self.qtextedit = QtWidgets.QLabel()
+        self.qtextedit.setWordWrap(True)
+        self.qtextedit.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
+        self.qtextedit.setAlignment(QtCore.Qt.AlignTop)
+        vbox2.addWidget(self.qtextedit)
+
+        """
         self.qtextedit = QtWidgets.QTextEdit()
         self.qtextedit.setFontPointSize(16)
         # self.qtextedit.textChanged.connect(self.on_textedit_changed)
         self.qtextedit.setReadOnly(True)
-
         vbox2.addWidget(self.qtextedit)
+        """
 
         """
         # ..shared info
