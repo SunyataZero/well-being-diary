@@ -129,6 +129,7 @@ class CompositeCentralWidget(QtWidgets.QWidget):
         self.journals_qcb.setMaximumWidth(100)
         for journal in wbd.model.JournalM.get_all():
             self.journals_qcb.addItem(journal.title_str)
+        self.journals_qcb.activated.connect(self.journals_activated)
         edit_diary_entry_vbox_l4.addWidget(self.journals_qcb)
 
         self.rating_qsr = QtWidgets.QSlider()
@@ -164,6 +165,19 @@ class CompositeCentralWidget(QtWidgets.QWidget):
     def update_gui_journal_buttons(self):
         journalm_list = bwb_model.JournalM.get_all()
     """
+
+    def journals_activated(self, i_index: int):
+        journal_text_str = self.journals_qcb.itemText(i_index)
+        journal_text_edited_str = " #" + journal_text_str.lower().replace(" ", "-")
+        logging.debug("journal_text = " + journal_text_edited_str)
+        prev_text_cursor = self.adding_text_to_diary_textedit_w6.textCursor()
+        self.adding_text_to_diary_textedit_w6.moveCursor(QtGui.QTextCursor.End)
+        self.adding_text_to_diary_textedit_w6.insertPlainText(journal_text_edited_str)
+        self.adding_text_to_diary_textedit_w6.setTextCursor(prev_text_cursor)
+
+        # Please note: There can be advantages of having the hashtags/journals on a new line, but if we want to
+        # have it on the same line as the user is on (without a new line) this can help us:
+        # https://stackoverflow.com/a/18134824/2525237
 
     def hour_slider_changed(self, i_value: int):
         qtime = QtCore.QTime(i_value, 0)

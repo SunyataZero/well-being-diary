@@ -119,7 +119,6 @@ def initial_schema_and_setup(i_db_conn):
     """
 
 
-
 """
 Example of db upgrade code:
 def upgrade_2_3(i_db_conn):
@@ -134,8 +133,6 @@ def upgrade_2_3(i_db_conn):
 upgrade_steps = {
     1: initial_schema_and_setup
 }
-
-db_file_exists_at_application_startup_bl = False
 
 
 class DbHelperM(object):
@@ -164,7 +161,7 @@ class DbHelperM(object):
 
             if wbd.wbd_global.testing_bool:
                 populate_db_with_test_data()
-            elif not db_file_exists_at_application_startup_bl:
+            elif not wbd.wbd_global.db_file_exists_at_application_startup_bl:
                 populate_db_with_setup_data()
 
         return DbHelperM.__db_connection

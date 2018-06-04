@@ -30,6 +30,9 @@ def get_icon_path(i_file_name: str) -> str:
     return ret_icon_path_str
 
 
+db_file_exists_at_application_startup_bl = False
+
+
 diary_view_locked_bool = False
 
 BWB_APPLICATION_VERSION_STR = "prototype 4"
