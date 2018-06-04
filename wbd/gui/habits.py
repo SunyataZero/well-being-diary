@@ -127,6 +127,9 @@ class HabitCompositeWidget(QtWidgets.QWidget):
         ######wbd.bwbglobal.active_question_id_it = None
 
     def on_edit_clicked(self):
+        self.show_edit_dialog()
+
+    def show_edit_dialog(self):
         id_int = wbd.wbd_global.active_question_id_it
         if id_int != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
             self.edit_dialog = EditDialog()
@@ -345,9 +348,12 @@ class HabitCompositeWidget(QtWidgets.QWidget):
         text_sg = self.adding_new_practice_qle.text().strip()  # strip is needed to remove a newline at the end (why?)
         if not (text_sg and text_sg.strip()):
             return
-        wbd.model.HabitM.add(text_sg, "")
+        wbd.wbd_global.active_question_id_it = wbd.model.HabitM.add(text_sg, "")
+
         self.adding_new_practice_qle.clear()
         self.update_gui()
+
+        self.show_edit_dialog()
 
     def on_practice_new_button_pressed_signal(self, i_practice_text_sg):
         wbd.model.HabitM.add(i_practice_text_sg, "question unfilled")
