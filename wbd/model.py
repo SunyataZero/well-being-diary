@@ -62,6 +62,7 @@ def initial_schema_and_setup(i_db_conn):
         + DbSchemaM.HabitTable.Cols.description + " TEXT NOT NULL DEFAULT '', "
         + DbSchemaM.HabitTable.Cols.archived + " INTEGER DEFAULT " + str(SQLITE_FALSE) + ", "
         + DbSchemaM.HabitTable.Cols.hour + " INTEGER DEFAULT " + str(TIME_NOT_SET) + ", "
+        + DbSchemaM.HabitTable.Cols.days_of_week + " INTEGER DEFAULT " + str(0) + ", "
         + DbSchemaM.HabitTable.Cols.default_journal_ref
         + " INTEGER REFERENCES " + DbSchemaM.JournalTable.name + "(" + DbSchemaM.JournalTable.Cols.id + ")"
         + " NOT NULL DEFAULT '" + str(wbd.wbd_global.NO_ACTIVE_JOURNAL_INT) + "'"
@@ -121,22 +122,6 @@ def initial_schema_and_setup(i_db_conn):
 
 """
 Example of db upgrade code:
-def upgrade_1_2(i_db_conn):
-    backup_db_file()
-    i_db_conn.execute(
-        "ALTER TABLE " + DbSchemaM.ObservancesTable.name + " ADD COLUMN "
-        + DbSchemaM.ObservancesTable.Cols.user_text + " TEXT DEFAULT ''"
-    )
-
-
-def upgrade_1_2(i_db_conn):
-    backup_db_file()
-    i_db_conn.execute(
-        "ALTER TABLE " + DbSchemaM.QuestionTable.name + " ADD COLUMN "
-        + DbSchemaM.QuestionTable.Cols.hour + " INTEGER DEFAULT " + str(TIME_NOT_SET)
-    )
-
-
 def upgrade_2_3(i_db_conn):
     backup_db_file()
     i_db_conn.execute(
@@ -193,6 +178,7 @@ class DbSchemaM:
             archived = "archived"
             hour = "hour"
             default_journal_ref = "default_journal"
+            days_of_week = "days_of_week"
 
     class DiaryEntryTable:
         name = "diary_entry"
@@ -223,9 +209,10 @@ class DbSchemaM:
             description = "description"
 
 
-class QuestionM:
+class HabitM:
     def __init__(
-    self, i_id: int, i_order: int, i_title: str, i_description: str, i_archived: bool, i_hour: int, i_labels: str,
+    self, i_id: int, i_order: int, i_title: str, i_description: str, i_archived: bool,
+    i_hour: int, i_days_of_week: int, i_labels: str,
     ) -> None:
         self.id_int = i_id
         self.sort_order_int = i_order
@@ -233,12 +220,13 @@ class QuestionM:
         self.description_str = i_description
         self.archived_bl = i_archived
         self.hour_int = i_hour
+        self.days_of_week_int = i_days_of_week  # -bitarray
         self.labels_str = i_labels
 
     @staticmethod
-    def add(i_title_str: str, i_question_str: str, i_archived: bool=False, i_hour: int=TIME_NOT_SET) -> int:
+    def add(i_title_str: str, i_description_str: str, i_archived: bool=False, i_hour: int=TIME_NOT_SET) -> int:
         # i_question_id_int: int,
-        sort_order = len(QuestionM.get_all())
+        sort_order = len(HabitM.get_all())
         print("sort_order = " + str(sort_order))
 
         archived_bool_as_int = SQLITE_FALSE
@@ -255,7 +243,7 @@ class QuestionM:
             + DbSchemaM.HabitTable.Cols.archived + ", "
             + DbSchemaM.HabitTable.Cols.hour
             + ") VALUES (?, ?, ?, ?, ?)",
-            (sort_order, i_title_str, i_question_str, archived_bool_as_int, i_hour)
+            (sort_order, i_title_str, i_description_str, archived_bool_as_int, i_hour)
         )
         db_connection.commit()
 
@@ -273,7 +261,7 @@ class QuestionM:
         journal_db_te = db_cursor_result.fetchone()
         db_connection.commit()
 
-        return QuestionM(*journal_db_te)
+        return HabitM(*journal_db_te)
 
     @staticmethod
     def get_all(i_show_archived_questions_bool = False):
@@ -291,7 +279,7 @@ class QuestionM:
         journal_db_te_list = db_cursor_result.fetchall()
         db_connection.commit()
 
-        return [QuestionM(*journal_db_te) for journal_db_te in journal_db_te_list]
+        return [HabitM(*journal_db_te) for journal_db_te in journal_db_te_list]
 
     @staticmethod
     def update_sort_order(i_id: int, i_sort_order: int) -> None:
@@ -789,7 +777,7 @@ def export_all():
         time_datetime = datetime.date.fromtimestamp(diary_item.date_added_it)
         date_str = time_datetime.strftime("%Y-%m-%d")
         csv_writer.writerow((date_str, diary_item.diary_text))
-    for question_item in QuestionM.get_all():
+    for question_item in HabitM.get_all():
         csv_writer.writerow((question_item.title_str, question_item.title_str))
         csv_writer.writerow((question_item.title_str, question_item.description_str))
 
@@ -806,11 +794,11 @@ def backup_db_file():
 def populate_db_with_test_data():
     delta_day_it = 24 * 60 * 60
 
-    meditation_id_int = QuestionM.add(
+    meditation_id_int = HabitM.add(
         "Meditation",
         "Meditation description",
         i_hour=10)
-    lunch_id_int = QuestionM.add(
+    lunch_id_int = HabitM.add(
         "Lunch",
         "Lunch description",
         i_hour=12)
@@ -820,19 +808,19 @@ def populate_db_with_test_data():
     contribution_journal_id_int = JournalM.add("Contribution", "Contribution and generosity")
     wisdom_journal_id_int = JournalM.add("Wisdom", "")
 
-    gratitude_id_int = QuestionM.add(
+    gratitude_id_int = HabitM.add(
         QuestionSetupEnum.gratitude.name.capitalize(),
         "What did I do to water the seeds of joy in myself today? What posivite things came my way today?")
-    practice_id_int = QuestionM.add(
+    practice_id_int = HabitM.add(
         QuestionSetupEnum.practice.name.capitalize(),
         "What practices did I do today? Sitting meditation ? Walking meditation? Gathas?")
-    sharing_id_int = QuestionM.add(
+    sharing_id_int = HabitM.add(
         QuestionSetupEnum.sharing.name.capitalize(),
         "Did I share my happiness with others? Did I enjoy the happiness of others?")
-    contribution_id_int = QuestionM.add(
+    contribution_id_int = HabitM.add(
         QuestionSetupEnum.contribution.name.capitalize(),
         "How did I contribute to the well-being on others? Did I share my joy with my friends and family?")
-    study_id_int = QuestionM.add(
+    study_id_int = HabitM.add(
         QuestionSetupEnum.study.name.capitalize(),
         "What did I read and listen to today and learn? Dharma talks? Lectures? Books? Sutras?")
 

@@ -18,8 +18,14 @@ class CompositeDetailsWidget(QtWidgets.QWidget):
         self.title_qll = QtWidgets.QLabel()
         vbox2.addWidget(self.title_qll)
 
+        # self.qframe = QtWidgets.QFrame()
+
         self.qtextedit = QtWidgets.QLabel()
         self.qtextedit.setWordWrap(True)
+        new_font = self.qtextedit.font()
+        new_font.setPointSize(15)
+        self.qtextedit.setFont(new_font)
+        self.qtextedit.setFrameStyle(QtWidgets.QFrame.Box)
         self.qtextedit.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
         self.qtextedit.setAlignment(QtCore.Qt.AlignTop)
         vbox2.addWidget(self.qtextedit)
@@ -58,20 +64,20 @@ class CompositeDetailsWidget(QtWidgets.QWidget):
             wbd.wbd_global.active_view_viewenum = wbd.wbd_global.ViewEnum.question_view
 
         if wbd.wbd_global.active_question_id_it is not None:
-            question = wbd.model.QuestionM.get(wbd.wbd_global.active_question_id_it)
+            question = wbd.model.HabitM.get(wbd.wbd_global.active_question_id_it)
 
-            question_str = question.question_str
+            description_str = question.description_str
 
             self.title_qll.setText('<span style="font-size: 14pt">' + question.title_str + '</span>')
 
-            # new_question_str = wbd.wbd_global.create_links_using_delimiters(question_str, "<", ">")
-            # new_question_str = re.sub(r'<(.*?)>', r'<a href="\1">\1</a>', question_str)
-            new_question_str = question_str
-            logging.debug("new_question_str = " + new_question_str)
+            # new_description_str = wbd.wbd_global.create_links_using_delimiters(description_str, "<", ">")
+            # new_description_str = re.sub(r'<(.*?)>', r'<a href="\1">\1</a>', description_str)
+            new_description_str = description_str
+            logging.debug("new_description_str = " + new_description_str)
 
-            # html_str = ("<span>" + " " + new_question_str + "</span>")
-            html_str = new_question_str
-            # + " " + re.sub("(<[.]+>)", '<a href="$1>$1</a>', question.question_str)
+            # html_str = ("<span>" + " " + new_description_str + "</span>")
+            html_str = new_description_str
+            # + " " + re.sub("(<[.]+>)", '<a href="$1>$1</a>', question.description_str)
 
             self.qtextedit.setText(html_str)
 

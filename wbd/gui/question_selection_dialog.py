@@ -32,7 +32,7 @@ class QuestionSelectionDialog(QtWidgets.QDialog):
         # -accept and reject are "slots" built into Qt
 
     def populate_list(self):
-        for question in wbd.model.QuestionM.get_all():
+        for question in wbd.model.HabitM.get_all():
             ###question_title_qlwi = QtWidgets.QListWidgetItem(question.title_str)
             ###self.list_widget.addItem(question_title_qlwi)
 

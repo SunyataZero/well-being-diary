@@ -31,10 +31,10 @@ class HabitCompositeWidget(QtWidgets.QWidget):
         ##habits_label = QtWidgets.QLabel("<h3>Journals</h3>")
         ##vbox_l2.addWidget(habits_label)
         vbox_l2.addWidget(QtWidgets.QLabel("Schedule"))
-        self.schedule_clw = CustomListWidget()
-        self.schedule_clw.drop_signal.connect(self.on_internal_list_widget_drop)
-        self.schedule_clw.currentRowChanged.connect(self.on_current_row_changed)
-        vbox_l2.addWidget(self.schedule_clw)
+        self.habit_clw = CustomListWidget()
+        self.habit_clw.drop_signal.connect(self.on_internal_list_widget_drop)
+        self.habit_clw.currentRowChanged.connect(self.on_current_row_changed)
+        vbox_l2.addWidget(self.habit_clw)
         ###self.list_widget.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         ###self.list_widget.itemPressed.connect(self.on_item_selection_changed)
         # -itemClicked didn't work, unknown why (it worked on the first click but never when running in debug mode)
@@ -54,7 +54,7 @@ class HabitCompositeWidget(QtWidgets.QWidget):
         hbox_l3 = QtWidgets.QHBoxLayout()
         vbox_l2.addLayout(hbox_l3)
         self.adding_new_practice_qle = QtWidgets.QLineEdit()
-        self.adding_new_practice_qle.setPlaceholderText("New question")
+        self.adding_new_practice_qle.setPlaceholderText("New habit")
         hbox_l3.addWidget(self.adding_new_practice_qle)
         self.adding_new_practice_bn = QtWidgets.QPushButton("Add")
         hbox_l3.addWidget(self.adding_new_practice_bn)
@@ -115,10 +115,10 @@ class HabitCompositeWidget(QtWidgets.QWidget):
     def on_current_row_changed(self):
         ###self.current_row_changed_signal.emit(self.list_widget.currentRow())
 
-        current_row_int = self.schedule_clw.currentRow()
+        current_row_int = self.habit_clw.currentRow()
         # if current_row_int != NO_QUESTION_INT:
-        current_question_qli = self.schedule_clw.item(current_row_int)
-        customqlabel_widget = self.schedule_clw.itemWidget(current_question_qli)
+        current_question_qli = self.habit_clw.item(current_row_int)
+        customqlabel_widget = self.habit_clw.itemWidget(current_question_qli)
         if customqlabel_widget is not None:
             wbd.wbd_global.active_question_id_it = customqlabel_widget.question_entry_id
             self.current_row_changed_signal.emit()
@@ -137,7 +137,7 @@ class HabitCompositeWidget(QtWidgets.QWidget):
         if i_result == QtWidgets.QDialog.Accepted:
             # assert mc.mc_global.active_phrase_id_it != wbd.wbd_global.NO_PHRASE_SELECTED_INT
             # question = wbd.model.QuestionM.get(wbd.wbd_global.active_question_id_it)
-            wbd.model.QuestionM.update_title(
+            wbd.model.HabitM.update_title(
                 wbd.wbd_global.active_question_id_it,
                 self.edit_dialog.question_title_qle.text()
             )
@@ -145,16 +145,16 @@ class HabitCompositeWidget(QtWidgets.QWidget):
                 hour_int = self.edit_dialog.hour_qte.time().hour()
             else:
                 hour_int = wbd.model.TIME_NOT_SET
-            wbd.model.QuestionM.update_hour(wbd.wbd_global.active_question_id_it, hour_int)
+            wbd.model.HabitM.update_hour(wbd.wbd_global.active_question_id_it, hour_int)
             plain_text_str = self.edit_dialog.description_qpte.toPlainText()
-            wbd.model.QuestionM.update_description(
+            wbd.model.HabitM.update_description(
                 wbd.wbd_global.active_question_id_it,
                 plain_text_str
             )
         else:
             pass
         ### self.phrase_changed_signal.emit(True)
-        self.update_gui()
+        self.update_gui(True)
 
     def on_internal_list_widget_drop(self):
         logging.debug("on_internal_list_widget_drop")
@@ -167,12 +167,12 @@ class HabitCompositeWidget(QtWidgets.QWidget):
     def update_db_sort_order_for_all_rows(self):
         logging.debug("update_db_sort_order_for_all_rows")
         count = 0
-        while count < self.schedule_clw.count():
-            q_list_item_widget = self.schedule_clw.item(count)
-            custom_label = self.schedule_clw.itemWidget(q_list_item_widget)
+        while count < self.habit_clw.count():
+            q_list_item_widget = self.habit_clw.item(count)
+            custom_label = self.habit_clw.itemWidget(q_list_item_widget)
             id_int = custom_label.question_entry_id
-            row_int = self.schedule_clw.row(q_list_item_widget)
-            wbd.model.QuestionM.update_sort_order(
+            row_int = self.habit_clw.row(q_list_item_widget)
+            wbd.model.HabitM.update_sort_order(
                 id_int,
                 row_int
             )
@@ -180,10 +180,10 @@ class HabitCompositeWidget(QtWidgets.QWidget):
             count += 1
 
     def move_current_row_up_down(self, i_move_direction: wbd.wbd_global.MoveDirectionEnum) -> None:
-        current_row_int = self.schedule_clw.currentRow()
-        current_list_widget_item = self.schedule_clw.item(current_row_int)
-        item_widget = self.schedule_clw.itemWidget(current_list_widget_item)
-        self.schedule_clw.takeItem(current_row_int)
+        current_row_int = self.habit_clw.currentRow()
+        current_list_widget_item = self.habit_clw.item(current_row_int)
+        item_widget = self.habit_clw.itemWidget(current_list_widget_item)
+        self.habit_clw.takeItem(current_row_int)
         # -IMPORTANT: item is removed from list only after the item widget has been extracted.
         #  The reason for this is that if we take the item away from the list the associated
         #  widget (in our case a CustomLabel) will not come with us (which makes sense
@@ -191,15 +191,15 @@ class HabitCompositeWidget(QtWidgets.QWidget):
         if i_move_direction == wbd.wbd_global.MoveDirectionEnum.up:
             # if main_sort_order_int == 0 or main_sort_order_int > len(QuestionM.get_all()):
             if current_row_int >= 0:
-                self.schedule_clw.insertItem(current_row_int - 1, current_list_widget_item)
-                self.schedule_clw.setItemWidget(current_list_widget_item, item_widget)
-                self.schedule_clw.setCurrentRow(current_row_int - 1)
+                self.habit_clw.insertItem(current_row_int - 1, current_list_widget_item)
+                self.habit_clw.setItemWidget(current_list_widget_item, item_widget)
+                self.habit_clw.setCurrentRow(current_row_int - 1)
         elif i_move_direction == wbd.wbd_global.MoveDirectionEnum.down:
             # if main_sort_order_int < 0 or main_sort_order_int >= len(QuestionM.get_all()):
-            if current_row_int < self.schedule_clw.count():
-                self.schedule_clw.insertItem(current_row_int + 1, current_list_widget_item)
-                self.schedule_clw.setItemWidget(current_list_widget_item, item_widget)
-                self.schedule_clw.setCurrentRow(current_row_int + 1)
+            if current_row_int < self.habit_clw.count():
+                self.habit_clw.insertItem(current_row_int + 1, current_list_widget_item)
+                self.habit_clw.setItemWidget(current_list_widget_item, item_widget)
+                self.habit_clw.setCurrentRow(current_row_int + 1)
 
         self.update_db_sort_order_for_all_rows()
 
@@ -280,14 +280,14 @@ class HabitCompositeWidget(QtWidgets.QWidget):
 
     def on_context_menu_change_description(self):
         if self.last_entry_clicked_id_int != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
-            question = wbd.model.QuestionM.get(self.last_entry_clicked_id_int)
+            question = wbd.model.HabitM.get(self.last_entry_clicked_id_int)
             text_input_dialog = QtWidgets.QInputDialog()
             new_text_qstring = text_input_dialog.getText(
-                self, "Change description dialog", "New description: ", text=question.question_str)
+                self, "Change description dialog", "New description: ", text=question.description_str)
             # -Docs: http://doc.qt.io/qt-5/qinputdialog.html#getText
             if new_text_qstring[0]:
                 logging.debug("new_text_qstring = " + str(new_text_qstring))
-                wbd.model.QuestionM.update_description(self.last_entry_clicked_id_int, new_text_qstring[0])
+                wbd.model.HabitM.update_description(self.last_entry_clicked_id_int, new_text_qstring[0])
                 self.update_gui()
             else:
                 pass  # -do nothing
@@ -296,14 +296,14 @@ class HabitCompositeWidget(QtWidgets.QWidget):
 
     def on_context_menu_change_title(self):
         if self.last_entry_clicked_id_int != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
-            question = wbd.model.QuestionM.get(self.last_entry_clicked_id_int)
+            question = wbd.model.HabitM.get(self.last_entry_clicked_id_int)
             text_input_dialog = QtWidgets.QInputDialog()
             new_text_qstring = text_input_dialog.getText(
                 self, "Rename dialog", "New name: ", text=question.title_str)
             # -Docs: http://doc.qt.io/qt-5/qinputdialog.html#getText
             if new_text_qstring[0]:
                 logging.debug("new_text_qstring = " + str(new_text_qstring))
-                wbd.model.QuestionM.update_title(self.last_entry_clicked_id_int, new_text_qstring[0])
+                wbd.model.HabitM.update_title(self.last_entry_clicked_id_int, new_text_qstring[0])
                 self.update_gui()
             else:
                 pass  # -do nothing
@@ -316,7 +316,7 @@ class HabitCompositeWidget(QtWidgets.QWidget):
                 self, "Archive entry?", "Are you sure that you want to archive this entry?"
             )
             if message_box_reply == QtWidgets.QMessageBox.Yes:
-                wbd.model.QuestionM.update_archived(int(self.last_entry_clicked_id_int), True)
+                wbd.model.HabitM.update_archived(int(self.last_entry_clicked_id_int), True)
                 self.update_gui()
                 ### self.context_menu_delete_signal.emit()
         else:
@@ -324,18 +324,18 @@ class HabitCompositeWidget(QtWidgets.QWidget):
 
     def on_context_menu_delete(self):
         if self.last_entry_clicked_id_int != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
-            active_question = wbd.model.QuestionM.get(wbd.wbd_global.active_question_id_it)
+            active_question = wbd.model.HabitM.get(wbd.wbd_global.active_question_id_it)
             conf_result_bool = wbd.gui.safe_confirmation_dialog.SafeConfirmationDialog.get_safe_confirmation_dialog(
                 "Are you sure that you want to remove this entry?<br><i>Please type the name to confirm</i>",
                 active_question.title_str
             )
 
             if conf_result_bool:
-                self.schedule_clw.clearSelection()
+                self.habit_clw.clearSelection()
                 wbd.wbd_global.active_question_id_it = None
                 self.current_row_changed_signal.emit()
 
-                wbd.model.QuestionM.remove(int(self.last_entry_clicked_id_int))
+                wbd.model.HabitM.remove(int(self.last_entry_clicked_id_int))
                 self.update_gui()
                 ### self.context_menu_delete_signal.emit()
         else:
@@ -345,12 +345,12 @@ class HabitCompositeWidget(QtWidgets.QWidget):
         text_sg = self.adding_new_practice_qle.text().strip()  # strip is needed to remove a newline at the end (why?)
         if not (text_sg and text_sg.strip()):
             return
-        wbd.model.QuestionM.add(text_sg, "")
+        wbd.model.HabitM.add(text_sg, "")
         self.adding_new_practice_qle.clear()
         self.update_gui()
 
     def on_practice_new_button_pressed_signal(self, i_practice_text_sg):
-        wbd.model.QuestionM.add(i_practice_text_sg, "question unfilled")
+        wbd.model.HabitM.add(i_practice_text_sg, "question unfilled")
         self.update_gui()
 
 
@@ -372,11 +372,14 @@ class HabitCompositeWidget(QtWidgets.QWidget):
         logging.debug("diary id: " + str(i_diary_id_it))
         self.last_entry_clicked_id_int = i_diary_id_it
 
-    def update_gui(self):
+    def update_gui(self, i_reset_current_row:bool=False):
         logging.debug("questions - update_gui() entered")
-        current_row_int = self.schedule_clw.currentRow()
-        self.schedule_clw.clear()
-        self.schedule_clw.clearSelection()
+        current_row_int = self.habit_clw.currentRow()
+        current_row_item = self.habit_clw.currentItem()
+        id_for_current_row_int = wbd.wbd_global.active_question_id_it
+
+        self.habit_clw.clear()
+        self.habit_clw.clearSelection()
 
         #self.habits_clw.clear()
         #self.habits_clw.clearSelection()
@@ -388,7 +391,7 @@ class HabitCompositeWidget(QtWidgets.QWidget):
         self.list_widget.setItemWidget(row_item, question_title_qll)
         """
 
-        for question in wbd.model.QuestionM.get_all(self.show_archived_questions_bool):
+        for question in wbd.model.HabitM.get_all(self.show_archived_questions_bool):
             row_item = QtWidgets.QListWidgetItem()
 
             question_title_str = question.title_str
@@ -410,14 +413,19 @@ class HabitCompositeWidget(QtWidgets.QWidget):
                 self.habits_clw.setItemWidget(row_item, question_title_qll)
             else:
             """
-            self.schedule_clw.addItem(row_item)
-            self.schedule_clw.setItemWidget(row_item, question_title_qll)
+            self.habit_clw.addItem(row_item)
+            self.habit_clw.setItemWidget(row_item, question_title_qll)
+
+            if i_reset_current_row and wbd.wbd_global.active_question_id_it == question.id_int:
+                self.habit_clw.setCurrentItem(row_item)
+
+        #self.habit_clw.clearSelection()
 
         ###current_row_signal_was_blocked_bl = self.list_widget.blockSignals(True)
         ###self.list_widget.item(1).setSelected(False)
         ###self.list_widget.setCurrentRow(current_row_int)
         ###self.list_widget.blockSignals(current_row_signal_was_blocked_bl)
-        self.schedule_clw.clearSelection()
+
         logging.debug("questions - clearselection")
 
 
@@ -471,7 +479,7 @@ class EditDialog(QtWidgets.QDialog):
             mc.mc_global.active_phrase_id_it = 1
         """
 
-        question = wbd.model.QuestionM.get(wbd.wbd_global.active_question_id_it)
+        question = wbd.model.HabitM.get(wbd.wbd_global.active_question_id_it)
         self.is_sheduled_bool = question.hour_int != wbd.model.TIME_NOT_SET
 
 
@@ -518,22 +526,26 @@ class EditDialog(QtWidgets.QDialog):
 
     def on_is_scheduled_toggled(self, i_checked: bool):
         self.is_sheduled_bool = i_checked
-        self.update_gui()
+        self.update_gui_hour_details()
 
-    def update_gui(self):
-        self.updating_gui_bool = True
-
-        question = wbd.model.QuestionM.get(wbd.wbd_global.active_question_id_it)
-
-        self.question_title_qle.setText(question.title_str)
-        self.description_qpte.setPlainText(question.question_str)
-
-        self.is_scheduled_qcb.setChecked(self.is_sheduled_bool)
-
+    def update_gui_hour_details(self):
+        question = wbd.model.HabitM.get(wbd.wbd_global.active_question_id_it)
         self.hour_qte.setEnabled(self.is_sheduled_bool)
         if self.is_sheduled_bool:
             qtime = QtCore.QTime(question.hour_int, 0)
             self.hour_qte.setTime(qtime)
+
+    def update_gui(self):
+        self.updating_gui_bool = True
+
+        question = wbd.model.HabitM.get(wbd.wbd_global.active_question_id_it)
+
+        self.question_title_qle.setText(question.title_str)
+        self.description_qpte.setPlainText(question.description_str)
+
+        self.is_scheduled_qcb.setChecked(self.is_sheduled_bool)
+
+        self.update_gui_hour_details()
 
         self.adjustSize()
 
