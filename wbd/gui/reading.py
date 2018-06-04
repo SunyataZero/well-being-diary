@@ -14,7 +14,7 @@ class ReadingWidget(QtWidgets.QWidget):
 
         self.updating_gui_bool = False
 
-        self.setMaximumWidth(380)
+        self.setMaximumWidth(240)
 
         vbox1 = QtWidgets.QVBoxLayout()
         self.setLayout(vbox1)

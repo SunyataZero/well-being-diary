@@ -135,6 +135,8 @@ upgrade_steps = {
     1: initial_schema_and_setup
 }
 
+db_file_exists_at_application_startup_bl = False
+
 
 class DbHelperM(object):
     __db_connection = None  # "Static"
@@ -162,6 +164,8 @@ class DbHelperM(object):
 
             if wbd.wbd_global.testing_bool:
                 populate_db_with_test_data()
+            elif not db_file_exists_at_application_startup_bl:
+                populate_db_with_setup_data()
 
         return DbHelperM.__db_connection
 
@@ -791,7 +795,7 @@ def backup_db_file():
     return
 
 
-def populate_db_with_test_data():
+def populate_db_with_setup_data():
     delta_day_it = 24 * 60 * 60
 
     meditation_id_int = HabitM.add(
@@ -824,11 +828,56 @@ def populate_db_with_test_data():
         QuestionSetupEnum.study.name.capitalize(),
         "What did I read and listen to today and learn? Dharma talks? Lectures? Books? Sutras?")
 
+    ReminderM.add("Inter-being",
+        "All things in the universe inter-are, our suffering and happiness inter-is with the suffernig and happiness of others")
+    ReminderM.add("No Mud, no lotus",
+        "A lotus flower cannot grow on marble!")
+
+
+def populate_db_with_test_data():
+
+    delta_day_it = 24 * 60 * 60
+
+    meditation_id_int = HabitM.add(
+        "Meditation",
+        "Meditation description",
+        i_hour=10)
+    lunch_id_int = HabitM.add(
+        "Lunch",
+        "Lunch description",
+        i_hour=12)
+
+    gratitude_journal_id_int = JournalM.add("Gratitude", "")
+    mind_cultivation_journal_id_int = JournalM.add("Mind cultivation", "")
+    contribution_journal_id_int = JournalM.add("Contribution", "Contribution and generosity")
+    wisdom_journal_id_int = JournalM.add("Wisdom", "")
+
+    gratitude_id_int = HabitM.add(
+        QuestionSetupEnum.gratitude.name.capitalize(),
+        "What did I do to water the seeds of joy in myself today? What posivite things came my way today?")
+    practice_id_int = HabitM.add(
+        QuestionSetupEnum.practice.name.capitalize(),
+        "What practices did I do today? Sitting meditation ? Walking meditation? Gathas?")
+    sharing_id_int = HabitM.add(
+        QuestionSetupEnum.sharing.name.capitalize(),
+        "Did I share my happiness with others? Did I enjoy the happiness of others?")
+    contribution_id_int = HabitM.add(
+        QuestionSetupEnum.contribution.name.capitalize(),
+        "How did I contribute to the well-being on others? Did I share my joy with my friends and family?")
+    study_id_int = HabitM.add(
+        QuestionSetupEnum.study.name.capitalize(),
+        "What did I read and listen to today and learn? Dharma talks? Lectures? Books? Sutras?")
+
+    ReminderM.add("Inter-being",
+        "All things in the universe inter-are, our suffering and happiness inter-is with the suffernig and happiness of others")
+    ReminderM.add("No Mud, no lotus",
+        "A lotus flower cannot grow on marble!")
+
+
     DiaryEntryM.add(
         time.time(), SQLITE_FALSE,
         "Dear Buddha, today i was #practicing #sitting meditation before meeting a friend of mine to be able to be more present during our meeting",
         wbd.wbd_global.NO_ACTIVE_HABIT_INT)
-
     DiaryEntryM.add(
         time.time(), SQLITE_FALSE,
         "Dear Buddha, i'm #grateful for being able to breathe!",
@@ -857,8 +906,5 @@ def populate_db_with_test_data():
         "Dharma talk from ^Plum-Village",
         practice_id_int)
 
-    ReminderM.add("Inter-being",
-        "All things in the universe inter-are, our suffering and happiness inter-is with the suffernig and happiness of others")
-    ReminderM.add("No Mud, no lotus",
-        "A lotus flower cannot grow on marble!")
+
 

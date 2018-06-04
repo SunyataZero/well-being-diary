@@ -1,18 +1,20 @@
 import sqlite3
 import sys
+import os
 import logging
 import argparse
 import configparser
-
 import PyQt5.Qt
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
-
+import wbd.wbd_global
 import wbd.gui.main_window
 
 
 if __name__ == "__main__":
+    wbd.wbd_global.db_file_exists_at_application_startup_bl = os.path.isfile(wbd.wbd_global.get_database_filename())
+
     # Application setup..
     # ..command line arguments
     argument_parser = argparse.ArgumentParser()
