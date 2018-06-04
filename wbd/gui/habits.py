@@ -13,24 +13,17 @@ import wbd.gui.safe_confirmation_dialog
 class HabitCompositeWidget(QtWidgets.QWidget):
     item_selection_changed_signal = QtCore.pyqtSignal()
     current_row_changed_signal = QtCore.pyqtSignal()
-    # -Please note: The int that is sent is not the current row number, but instead the id for the question
     new_practice_button_pressed_signal = QtCore.pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
-
         self.show_archived_questions_bool = False
-
         self.last_entry_clicked_id_int = wbd.wbd_global.NO_ACTIVE_QUESTION_INT
-
         vbox_l2 = QtWidgets.QVBoxLayout()
         self.setLayout(vbox_l2)
 
         # Creating widgets
-        # ..for ten practices (left column)
-        ##habits_label = QtWidgets.QLabel("<h3>Journals</h3>")
-        ##vbox_l2.addWidget(habits_label)
-        vbox_l2.addWidget(QtWidgets.QLabel("Schedule"))
+        # ..for habits
         self.habit_clw = CustomListWidget()
         self.habit_clw.drop_signal.connect(self.on_internal_list_widget_drop)
         self.habit_clw.currentRowChanged.connect(self.on_current_row_changed)
@@ -39,16 +32,6 @@ class HabitCompositeWidget(QtWidgets.QWidget):
         ###self.list_widget.itemPressed.connect(self.on_item_selection_changed)
         # -itemClicked didn't work, unknown why (it worked on the first click but never when running in debug mode)
         # -currentItemChanged cannot be used here since it is activated before the list of selected items is updated
-
-        """
-        # ..unstructured
-        vbox_l2.addWidget(QtWidgets.QLabel("Habits"))
-        self.habits_clw = CustomListWidget()
-        self.habits_clw.setDragDropMode(QtWidgets.QAbstractItemView.InternalMove)
-        self.habits_clw.drop_signal.connect(self.on_internal_list_widget_drop)
-        self.habits_clw.currentRowChanged.connect(self.on_current_row_changed)
-        vbox_l2.addWidget(self.habits_clw)
-        """
 
         # ..for adding a new question
         hbox_l3 = QtWidgets.QHBoxLayout()
@@ -67,8 +50,6 @@ class HabitCompositeWidget(QtWidgets.QWidget):
         self.show_archived_qpb.setCheckable(True)
         self.show_archived_qpb.toggled.connect(self.on_show_archived_button_toggled)
 
-
-
         hbox_l3 = QtWidgets.QHBoxLayout()
         vbox_l2.addLayout(hbox_l3)
         self.edit_texts_qpb = QtWidgets.QPushButton()
@@ -76,13 +57,13 @@ class HabitCompositeWidget(QtWidgets.QWidget):
         self.edit_texts_qpb.setToolTip(self.tr("Edit the selected question"))
         self.edit_texts_qpb.clicked.connect(self.on_edit_clicked)
         hbox_l3.addWidget(self.edit_texts_qpb)
-        """
+
         self.move_to_top_qpb = QtWidgets.QPushButton()
         self.move_to_top_qpb.setIcon(QtGui.QIcon(wbd.wbd_global.get_icon_path("data-transfer-upload-2x.png")))
         self.move_to_top_qpb.setToolTip(self.tr("Move the selected breathing phrase to top"))
-        self.move_to_top_qpb.clicked.connect(self.on_move_to_top_clicked)        
+        #####self.move_to_top_qpb.clicked.connect(self.on_move_to_top_clicked)
         hbox_l3.addWidget(self.move_to_top_qpb)
-        """
+
         self.move_up_qpb = QtWidgets.QPushButton()
         self.move_up_qpb.setIcon(QtGui.QIcon(wbd.wbd_global.get_icon_path("arrow-top-2x.png")))
         self.move_up_qpb.setToolTip(self.tr("Move the selected breathing phrase up"))
@@ -169,9 +150,9 @@ class HabitCompositeWidget(QtWidgets.QWidget):
 
     def update_db_sort_order_for_all_rows(self):
         logging.debug("update_db_sort_order_for_all_rows")
-        count = 0
-        while count < self.habit_clw.count():
-            q_list_item_widget = self.habit_clw.item(count)
+        i = 0
+        while i < self.habit_clw.count():
+            q_list_item_widget = self.habit_clw.item(i)
             custom_label = self.habit_clw.itemWidget(q_list_item_widget)
             id_int = custom_label.question_entry_id
             row_int = self.habit_clw.row(q_list_item_widget)
@@ -180,7 +161,7 @@ class HabitCompositeWidget(QtWidgets.QWidget):
                 row_int
             )
             logging.debug("id_int = " + str(id_int) + ", row_int = " + str(row_int))
-            count += 1
+            i += 1
 
     def move_current_row_up_down(self, i_move_direction: wbd.wbd_global.MoveDirectionEnum) -> None:
         current_row_int = self.habit_clw.currentRow()
@@ -314,16 +295,24 @@ class HabitCompositeWidget(QtWidgets.QWidget):
             raise Exception("Should not be possible to get here")
 
     def on_context_menu_archive(self):
-        if self.last_entry_clicked_id_int != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
+        if not self.show_archived_qpb.isChecked():
+            if self.last_entry_clicked_id_int != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
+                message_box_reply = QtWidgets.QMessageBox.question(
+                    self, "Archive entry?", "Are you sure that you want to archive this entry?"
+                )
+                if message_box_reply == QtWidgets.QMessageBox.Yes:
+                    wbd.model.HabitM.update_archived(int(self.last_entry_clicked_id_int), True)
+                    self.update_gui()
+                    ### self.context_menu_delete_signal.emit()
+            else:
+                raise Exception("Should not be possible to get here")
+        else:
             message_box_reply = QtWidgets.QMessageBox.question(
-                self, "Archive entry?", "Are you sure that you want to archive this entry?"
+                self, "Un-archive entry?", "Are you sure that you want to un-archive this entry?"
             )
             if message_box_reply == QtWidgets.QMessageBox.Yes:
-                wbd.model.HabitM.update_archived(int(self.last_entry_clicked_id_int), True)
+                wbd.model.HabitM.update_archived(int(self.last_entry_clicked_id_int), False)
                 self.update_gui()
-                ### self.context_menu_delete_signal.emit()
-        else:
-            raise Exception("Should not be possible to get here")
 
     def on_context_menu_delete(self):
         if self.last_entry_clicked_id_int != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:

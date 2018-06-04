@@ -56,7 +56,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Setup of widgets..
         # ..questions
-        self.questions_dock_qw2 = QtWidgets.QDockWidget("Schedule and habits", self)  # "Daily questions"
+        self.questions_dock_qw2 = QtWidgets.QDockWidget("Habits", self)  # "Daily questions"
         self.questions_dock_qw2.setFeatures(
             QtWidgets.QDockWidget.DockWidgetMovable |
             QtWidgets.QDockWidget.DockWidgetFloatable)
