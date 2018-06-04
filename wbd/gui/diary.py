@@ -215,7 +215,7 @@ class DiaryListCompositeWidget(QtWidgets.QWidget):
             if wbd_global.active_view_viewenum == wbd_global.ViewEnum.question_view:
                 pass
             elif wbd_global.active_view_viewenum == wbd_global.ViewEnum.daily_overview:
-                if diary_entry.habit_ref_it != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
+                if diary_entry.habit_ref_it != wbd.wbd_global.NO_ACTIVE_HABIT_INT:
                     questionm = wbd.model.HabitM.get(diary_entry.habit_ref_it)
                     question_title_sg = str(questionm.title_str)
                     # left_qlabel = QtWidgets.QLabel(question_title_sg)

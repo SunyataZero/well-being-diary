@@ -34,12 +34,12 @@ diary_view_locked_bool = False
 
 BWB_APPLICATION_VERSION_STR = "prototype 4"
 BWB_APPLICATION_NAME_STR = "Well-Being Journal"
-NO_ACTIVE_QUESTION_INT = -1
+NO_ACTIVE_HABIT_INT = -1
 NO_ACTIVE_JOURNAL_INT = -1
 
 active_view_viewenum = ViewEnum.daily_overview
 active_date_qdate = QtCore.QDate.currentDate()
-active_question_id_it = NO_ACTIVE_QUESTION_INT  # -TODO: Change this
+active_question_id_it = NO_ACTIVE_HABIT_INT  # -TODO: Change this
 shown_month_1to12_it = QtCore.QDate.currentDate().month()
 shown_year_it = QtCore.QDate.currentDate().year()
 search_string_str = ""

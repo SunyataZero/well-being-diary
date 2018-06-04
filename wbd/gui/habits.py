@@ -18,16 +18,15 @@ class HabitCompositeWidget(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         self.show_archived_questions_bool = False
-        self.last_entry_clicked_id_int = wbd.wbd_global.NO_ACTIVE_QUESTION_INT
+        self.last_entry_clicked_id_int = wbd.wbd_global.NO_ACTIVE_HABIT_INT
         vbox_l2 = QtWidgets.QVBoxLayout()
         self.setLayout(vbox_l2)
 
         # Creating widgets
         # ..for habits
-        self.habit_clw = CustomListWidget()
-        self.habit_clw.drop_signal.connect(self.on_internal_list_widget_drop)
-        self.habit_clw.currentRowChanged.connect(self.on_current_row_changed)
-        vbox_l2.addWidget(self.habit_clw)
+        self.habit_qlw = QtWidgets.QListWidget()
+        self.habit_qlw.currentRowChanged.connect(self.on_current_row_changed)
+        vbox_l2.addWidget(self.habit_qlw)
         ###self.list_widget.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
         ###self.list_widget.itemPressed.connect(self.on_item_selection_changed)
         # -itemClicked didn't work, unknown why (it worked on the first click but never when running in debug mode)
@@ -88,31 +87,21 @@ class HabitCompositeWidget(QtWidgets.QWidget):
         self.delete_phrase_qpb.clicked.connect(self.on_context_menu_delete)
         hbox_l3.addWidget(self.delete_phrase_qpb)
 
-    """
-    def on_indexes_moved(self, i_indexes_moved):
-        logging.debug("on_indexes_moved, i_indexes_moved = " + str(i_indexes_moved))
-    """
-
     def on_current_row_changed(self):
-        ###self.current_row_changed_signal.emit(self.list_widget.currentRow())
-
-        current_row_int = self.habit_clw.currentRow()
+        current_row_int = self.habit_qlw.currentRow()
         # if current_row_int != NO_QUESTION_INT:
-        current_question_qli = self.habit_clw.item(current_row_int)
-        customqlabel_widget = self.habit_clw.itemWidget(current_question_qli)
+        current_question_qli = self.habit_qlw.item(current_row_int)
+        customqlabel_widget = self.habit_qlw.itemWidget(current_question_qli)
         if customqlabel_widget is not None:
             wbd.wbd_global.active_question_id_it = customqlabel_widget.question_entry_id
             self.current_row_changed_signal.emit()
-        # else:
-        # pass
-        ######wbd.bwbglobal.active_question_id_it = None
 
     def on_edit_clicked(self):
         self.show_edit_dialog()
 
     def show_edit_dialog(self):
         id_int = wbd.wbd_global.active_question_id_it
-        if id_int != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
+        if id_int != wbd.wbd_global.NO_ACTIVE_HABIT_INT:
             self.edit_dialog = EditDialog()
             self.edit_dialog.finished.connect(self.on_edit_dialog_finished)
             self.edit_dialog.show()
@@ -140,10 +129,6 @@ class HabitCompositeWidget(QtWidgets.QWidget):
         ### self.phrase_changed_signal.emit(True)
         self.update_gui(True)
 
-    def on_internal_list_widget_drop(self):
-        logging.debug("on_internal_list_widget_drop")
-        self.update_db_sort_order_for_all_rows()
-
     def on_show_archived_button_toggled(self, i_new_state_bool):
         self.show_archived_questions_bool = i_new_state_bool
         self.update_gui()
@@ -151,11 +136,11 @@ class HabitCompositeWidget(QtWidgets.QWidget):
     def update_db_sort_order_for_all_rows(self):
         logging.debug("update_db_sort_order_for_all_rows")
         i = 0
-        while i < self.habit_clw.count():
-            q_list_item_widget = self.habit_clw.item(i)
-            custom_label = self.habit_clw.itemWidget(q_list_item_widget)
+        while i < self.habit_qlw.count():
+            q_list_item_widget = self.habit_qlw.item(i)
+            custom_label = self.habit_qlw.itemWidget(q_list_item_widget)
             id_int = custom_label.question_entry_id
-            row_int = self.habit_clw.row(q_list_item_widget)
+            row_int = self.habit_qlw.row(q_list_item_widget)
             wbd.model.HabitM.update_sort_order(
                 id_int,
                 row_int
@@ -164,10 +149,10 @@ class HabitCompositeWidget(QtWidgets.QWidget):
             i += 1
 
     def move_current_row_up_down(self, i_move_direction: wbd.wbd_global.MoveDirectionEnum) -> None:
-        current_row_int = self.habit_clw.currentRow()
-        current_list_widget_item = self.habit_clw.item(current_row_int)
-        item_widget = self.habit_clw.itemWidget(current_list_widget_item)
-        self.habit_clw.takeItem(current_row_int)
+        current_row_int = self.habit_qlw.currentRow()
+        current_list_widget_item = self.habit_qlw.item(current_row_int)
+        item_widget = self.habit_qlw.itemWidget(current_list_widget_item)
+        self.habit_qlw.takeItem(current_row_int)
         # -IMPORTANT: item is removed from list only after the item widget has been extracted.
         #  The reason for this is that if we take the item away from the list the associated
         #  widget (in our case a CustomLabel) will not come with us (which makes sense
@@ -175,15 +160,15 @@ class HabitCompositeWidget(QtWidgets.QWidget):
         if i_move_direction == wbd.wbd_global.MoveDirectionEnum.up:
             # if main_sort_order_int == 0 or main_sort_order_int > len(QuestionM.get_all()):
             if current_row_int >= 0:
-                self.habit_clw.insertItem(current_row_int - 1, current_list_widget_item)
-                self.habit_clw.setItemWidget(current_list_widget_item, item_widget)
-                self.habit_clw.setCurrentRow(current_row_int - 1)
+                self.habit_qlw.insertItem(current_row_int - 1, current_list_widget_item)
+                self.habit_qlw.setItemWidget(current_list_widget_item, item_widget)
+                self.habit_qlw.setCurrentRow(current_row_int - 1)
         elif i_move_direction == wbd.wbd_global.MoveDirectionEnum.down:
             # if main_sort_order_int < 0 or main_sort_order_int >= len(QuestionM.get_all()):
-            if current_row_int < self.habit_clw.count():
-                self.habit_clw.insertItem(current_row_int + 1, current_list_widget_item)
-                self.habit_clw.setItemWidget(current_list_widget_item, item_widget)
-                self.habit_clw.setCurrentRow(current_row_int + 1)
+            if current_row_int < self.habit_qlw.count():
+                self.habit_qlw.insertItem(current_row_int + 1, current_list_widget_item)
+                self.habit_qlw.setItemWidget(current_list_widget_item, item_widget)
+                self.habit_qlw.setCurrentRow(current_row_int + 1)
 
         self.update_db_sort_order_for_all_rows()
 
@@ -211,18 +196,10 @@ class HabitCompositeWidget(QtWidgets.QWidget):
         Docs: http://doc.qt.io/qt-5/qwidget.html#contextMenuEvent
         """
 
-        if self.last_entry_clicked_id_int == wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
+        if self.last_entry_clicked_id_int == wbd.wbd_global.NO_ACTIVE_HABIT_INT:
             return
 
         self.right_click_menu = QtWidgets.QMenu()
-
-        change_title_action = QtWidgets.QAction("Change title")
-        change_title_action.triggered.connect(self.on_context_menu_change_title)
-        self.right_click_menu.addAction(change_title_action)
-
-        change_description_action = QtWidgets.QAction("Change question description")
-        change_description_action.triggered.connect(self.on_context_menu_change_description)
-        self.right_click_menu.addAction(change_description_action)
 
         if self.show_archived_qpb.isChecked():
             delete_action = QtWidgets.QAction("Delete")
@@ -262,41 +239,9 @@ class HabitCompositeWidget(QtWidgets.QWidget):
         self.move_current_row_up_down(wbd.wbd_global.MoveDirectionEnum.down)
         self.update_gui()
 
-    def on_context_menu_change_description(self):
-        if self.last_entry_clicked_id_int != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
-            question = wbd.model.HabitM.get(self.last_entry_clicked_id_int)
-            text_input_dialog = QtWidgets.QInputDialog()
-            new_text_qstring = text_input_dialog.getText(
-                self, "Change description dialog", "New description: ", text=question.description_str)
-            # -Docs: http://doc.qt.io/qt-5/qinputdialog.html#getText
-            if new_text_qstring[0]:
-                logging.debug("new_text_qstring = " + str(new_text_qstring))
-                wbd.model.HabitM.update_description(self.last_entry_clicked_id_int, new_text_qstring[0])
-                self.update_gui()
-            else:
-                pass  # -do nothing
-        else:
-            raise Exception("Should not be possible to get here")
-
-    def on_context_menu_change_title(self):
-        if self.last_entry_clicked_id_int != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
-            question = wbd.model.HabitM.get(self.last_entry_clicked_id_int)
-            text_input_dialog = QtWidgets.QInputDialog()
-            new_text_qstring = text_input_dialog.getText(
-                self, "Rename dialog", "New name: ", text=question.title_str)
-            # -Docs: http://doc.qt.io/qt-5/qinputdialog.html#getText
-            if new_text_qstring[0]:
-                logging.debug("new_text_qstring = " + str(new_text_qstring))
-                wbd.model.HabitM.update_title(self.last_entry_clicked_id_int, new_text_qstring[0])
-                self.update_gui()
-            else:
-                pass  # -do nothing
-        else:
-            raise Exception("Should not be possible to get here")
-
     def on_context_menu_archive(self):
         if not self.show_archived_qpb.isChecked():
-            if self.last_entry_clicked_id_int != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
+            if self.last_entry_clicked_id_int != wbd.wbd_global.NO_ACTIVE_HABIT_INT:
                 message_box_reply = QtWidgets.QMessageBox.question(
                     self, "Archive entry?", "Are you sure that you want to archive this entry?"
                 )
@@ -315,7 +260,7 @@ class HabitCompositeWidget(QtWidgets.QWidget):
                 self.update_gui()
 
     def on_context_menu_delete(self):
-        if self.last_entry_clicked_id_int != wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
+        if self.last_entry_clicked_id_int != wbd.wbd_global.NO_ACTIVE_HABIT_INT:
             active_question = wbd.model.HabitM.get(wbd.wbd_global.active_question_id_it)
             conf_result_bool = wbd.gui.safe_confirmation_dialog.SafeConfirmationDialog.get_safe_confirmation_dialog(
                 "Are you sure that you want to remove this entry?<br><i>Please type the name to confirm</i>",
@@ -323,11 +268,11 @@ class HabitCompositeWidget(QtWidgets.QWidget):
             )
 
             if conf_result_bool:
-                self.habit_clw.clearSelection()
-                wbd.wbd_global.active_question_id_it = None
+                self.habit_qlw.clearSelection()
+                wbd.wbd_global.active_question_id_it = wbd.wbd_global.NO_ACTIVE_HABIT_INT
                 self.current_row_changed_signal.emit()
 
-                wbd.model.HabitM.remove(int(self.last_entry_clicked_id_int))
+                wbd.model.HabitM.remove(self.last_entry_clicked_id_int)
                 self.update_gui()
                 ### self.context_menu_delete_signal.emit()
         else:
@@ -344,23 +289,6 @@ class HabitCompositeWidget(QtWidgets.QWidget):
 
         self.show_edit_dialog()
 
-    def on_practice_new_button_pressed_signal(self, i_practice_text_sg):
-        wbd.model.HabitM.add(i_practice_text_sg, "question unfilled")
-        self.update_gui()
-
-
-    """
-    def on_item_selection_changed(self, i_qlistwidget_item):
-        logging.debug("self.list_widget.currentRow() = " + str(self.list_widget.currentRow()))
-
-        current_row_it = self.list_widget.currentRow()
-        if current_row_it == -1:
-            # We might get here when a karma item has been clicked
-            return
-
-        self.item_selection_changed_signal.emit()
-    """
-
     # The same function is used for all the "rows"
     def on_list_row_label_mouse_pressed(self, i_qmouseevent, i_diary_id_it):
         logging.debug("button clicked: " + str(i_qmouseevent.button()))
@@ -369,22 +297,9 @@ class HabitCompositeWidget(QtWidgets.QWidget):
 
     def update_gui(self, i_reset_current_row:bool=False):
         logging.debug("questions - update_gui() entered")
-        current_row_int = self.habit_clw.currentRow()
-        current_row_item = self.habit_clw.currentItem()
-        id_for_current_row_int = wbd.wbd_global.active_question_id_it
 
-        self.habit_clw.clear()
-        self.habit_clw.clearSelection()
-
-        #self.habits_clw.clear()
-        #self.habits_clw.clearSelection()
-
-        """
-        row_item = QtWidgets.QListWidgetItem()
-        self.list_widget.addItem(row_item)
-        question_title_qll = CustomQLabel("<i>no question</i>", wbd.bwbglobal.NO_ACTIVE_QUESTION_INT)
-        self.list_widget.setItemWidget(row_item, question_title_qll)
-        """
+        self.habit_qlw.clear()
+        self.habit_qlw.clearSelection()
 
         for question in wbd.model.HabitM.get_all(self.show_archived_questions_bool):
             row_item = QtWidgets.QListWidgetItem()
@@ -402,26 +317,11 @@ class HabitCompositeWidget(QtWidgets.QWidget):
                 self.on_list_row_label_mouse_pressed
             )
 
-            """
-            if question.hour_int == wbd.model.TIME_NOT_SET:
-                self.habits_clw.addItem(row_item)
-                self.habits_clw.setItemWidget(row_item, question_title_qll)
-            else:
-            """
-            self.habit_clw.addItem(row_item)
-            self.habit_clw.setItemWidget(row_item, question_title_qll)
+            self.habit_qlw.addItem(row_item)
+            self.habit_qlw.setItemWidget(row_item, question_title_qll)
 
             if i_reset_current_row and wbd.wbd_global.active_question_id_it == question.id_int:
-                self.habit_clw.setCurrentItem(row_item)
-
-        #self.habit_clw.clearSelection()
-
-        ###current_row_signal_was_blocked_bl = self.list_widget.blockSignals(True)
-        ###self.list_widget.item(1).setSelected(False)
-        ###self.list_widget.setCurrentRow(current_row_int)
-        ###self.list_widget.blockSignals(current_row_signal_was_blocked_bl)
-
-        logging.debug("questions - clearselection")
+                self.habit_qlw.setCurrentItem(row_item)
 
 
 class CustomQLabel(QtWidgets.QLabel):
@@ -439,18 +339,6 @@ class CustomQLabel(QtWidgets.QLabel):
         super(CustomQLabel, self).mousePressEvent(i_qmouseevent)
         # -self is automatically sent as the 1st argument
         self.mouse_pressed_signal.emit(i_qmouseevent, self.question_entry_id)
-
-
-class CustomListWidget(QtWidgets.QListWidget):
-    drop_signal = QtCore.pyqtSignal()
-
-    def __init__(self):
-        super().__init__()
-
-    def dropEvent(self, i_QDropEvent):
-        super().dropEvent(i_QDropEvent)
-        self.drop_signal.emit()
-        logging.debug("CustomListWidget - dropEvent")
 
 
 class EditDialog(QtWidgets.QDialog):
@@ -477,7 +365,6 @@ class EditDialog(QtWidgets.QDialog):
         question = wbd.model.HabitM.get(wbd.wbd_global.active_question_id_it)
         self.is_sheduled_bool = question.hour_int != wbd.model.TIME_NOT_SET
 
-
         vbox = QtWidgets.QVBoxLayout(self)
         spacing_int = 20
 
@@ -490,11 +377,13 @@ class EditDialog(QtWidgets.QDialog):
         self.description_qpte = QtWidgets.QPlainTextEdit()
         self.description_qpte.setPlaceholderText("Please enter a description")
         vbox.addWidget(self.description_qpte)
-        descr_help_str = """You can enclose text inside < and > to make it clickable """
+
+        # descr_help_str = """You can enclose text inside < and > to make it clickable """
         """so that it is added to the edit area when clicking it"""
-        self.description_help_qll = QtWidgets.QLabel(descr_help_str)
-        self.description_help_qll.setWordWrap(True)
-        vbox.addWidget(self.description_help_qll)
+        # self.description_help_qll = QtWidgets.QLabel(descr_help_str)
+        # self.description_help_qll.setWordWrap(True)
+        # vbox.addWidget(self.description_help_qll)
+
         vbox.addSpacing(spacing_int)
 
         self.is_scheduled_qcb = QtWidgets.QCheckBox("Scheduled")
@@ -516,8 +405,6 @@ class EditDialog(QtWidgets.QDialog):
         # -accept and reject are "slots" built into Qt
 
         self.update_gui()
-
-    # def on_hour_changed(self):
 
     def on_is_scheduled_toggled(self, i_checked: bool):
         self.is_sheduled_bool = i_checked

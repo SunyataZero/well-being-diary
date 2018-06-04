@@ -75,7 +75,7 @@ def initial_schema_and_setup(i_db_conn):
         + DbSchemaM.HabitTable.Cols.sort_order + ", "
         + DbSchemaM.HabitTable.Cols.title + ", "
         + DbSchemaM.HabitTable.Cols.description
-        + ") VALUES (?, ?, ?, ?)", (wbd.wbd_global.NO_ACTIVE_QUESTION_INT, -1, "<i>no question</i>", "")
+        + ") VALUES (?, ?, ?, ?)", (wbd.wbd_global.NO_ACTIVE_HABIT_INT, -1, "<i>no question</i>", "")
     )
 
     i_db_conn.execute(
@@ -86,7 +86,7 @@ def initial_schema_and_setup(i_db_conn):
         + DbSchemaM.DiaryEntryTable.Cols.diary_text + " TEXT, "
         + DbSchemaM.DiaryEntryTable.Cols.habit_ref
         + " INTEGER REFERENCES " + DbSchemaM.HabitTable.name + "(" + DbSchemaM.HabitTable.Cols.id + ")"
-        + " NOT NULL DEFAULT '" + str(wbd.wbd_global.NO_ACTIVE_QUESTION_INT) + "',"
+        + " NOT NULL DEFAULT '" + str(wbd.wbd_global.NO_ACTIVE_HABIT_INT) + "',"
         + DbSchemaM.DiaryEntryTable.Cols.journal_ref
         + " INTEGER REFERENCES " + DbSchemaM.JournalTable.name + "(" + DbSchemaM.JournalTable.Cols.id + ")"
         + " NOT NULL DEFAULT '" + str(wbd.wbd_global.NO_ACTIVE_JOURNAL_INT) + "'"
@@ -349,7 +349,7 @@ class HabitM:
     @staticmethod
     def remove(i_id_it):
 
-        if i_id_it == wbd.wbd_global.NO_ACTIVE_QUESTION_INT:
+        if i_id_it == wbd.wbd_global.NO_ACTIVE_HABIT_INT:
             raise Exception("This cannot be removed")
             return
 
@@ -362,7 +362,7 @@ class HabitM:
 
         db_cursor.execute(
             "UPDATE " + DbSchemaM.DiaryEntryTable.name
-            + " SET " + DbSchemaM.DiaryEntryTable.Cols.habit_ref + "=" + SQLITE_NULL
+            + " SET " + DbSchemaM.DiaryEntryTable.Cols.habit_ref + "=" + str(wbd.wbd_global.NO_ACTIVE_HABIT_INT)
             + " WHERE " + DbSchemaM.DiaryEntryTable.Cols.habit_ref + "=" + str(i_id_it)
         )
 
@@ -827,7 +827,7 @@ def populate_db_with_test_data():
     DiaryEntryM.add(
         time.time(), SQLITE_FALSE,
         "Dear Buddha, today i was #practicing #sitting meditation before meeting a friend of mine to be able to be more present during our meeting",
-        wbd.wbd_global.NO_ACTIVE_QUESTION_INT)
+        wbd.wbd_global.NO_ACTIVE_HABIT_INT)
 
     DiaryEntryM.add(
         time.time(), SQLITE_FALSE,
@@ -846,7 +846,7 @@ def populate_db_with_test_data():
         gratitude_id_int)
     DiaryEntryM.add(
         time.time() - 3 * delta_day_it, SQLITE_FALSE,
-        "Dear Buddha, today i read about the four foundations of mindfulness. Some important parts: 1. Body 2. Feelings 3. Mind 4. Objects of mind",
+        "Dear Buddha and friends in the Sangha, today i read about the four foundations of mindfulness. Some important parts: 1. Body 2. Feelings 3. Mind 4. Objects of mind",
         study_id_int)
     DiaryEntryM.add(
         time.time() - 4 * delta_day_it, SQLITE_FALSE,

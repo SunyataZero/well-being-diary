@@ -197,19 +197,19 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def on_central_key_press_0_9_for_question_list(self, i_int):
         logging.debug("Entered on_central_key_press_for_question_list")
-        self.questions_composite_w3.habit_clw.setCurrentRow(i_int)
+        self.questions_composite_w3.habit_qlw.setCurrentRow(i_int)
 
     def on_central_key_press_up_for_question_list(self):
-        questions_current_row_int = self.questions_composite_w3.habit_clw.currentRow()
+        questions_current_row_int = self.questions_composite_w3.habit_qlw.currentRow()
         if questions_current_row_int <= 0:
             return
-        self.questions_composite_w3.habit_clw.setCurrentRow(questions_current_row_int - 1)
+        self.questions_composite_w3.habit_qlw.setCurrentRow(questions_current_row_int - 1)
 
     def on_central_key_press_down_for_question_list(self):
-        questions_current_row_int = self.questions_composite_w3.habit_clw.currentRow()
-        if questions_current_row_int >= self.questions_composite_w3.habit_clw.count() - 1:
+        questions_current_row_int = self.questions_composite_w3.habit_qlw.currentRow()
+        if questions_current_row_int >= self.questions_composite_w3.habit_qlw.count() - 1:
             return
-        self.questions_composite_w3.habit_clw.setCurrentRow(questions_current_row_int + 1)
+        self.questions_composite_w3.habit_qlw.setCurrentRow(questions_current_row_int + 1)
 
     def keyPressEvent(self, iQKeyEvent):
         """

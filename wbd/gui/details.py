@@ -83,8 +83,10 @@ class CompositeDetailsWidget(QtWidgets.QWidget):
 
             # TODO: Move this code into the central widget
 
+        """
         else:
             self.question_info_shared_qll.setText("<i>title empty</i>")
+        """
 
     def on_textedit_changed(self):
         """
