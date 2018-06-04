@@ -170,7 +170,7 @@ class DiaryListCompositeWidget(QtWidgets.QWidget):
         clear_widget_and_layout_children(self.scroll_list_vbox_l5)
 
         diary_list = []
-        if wbd_global.active_view_viewenum == wbd_global.ViewEnum.question_view:
+        if wbd_global.active_view_viewenum == wbd_global.ViewEnum.habit_view:
             diary_list = wbd.model.DiaryEntryM.get_all_for_question(
                 wbd_global.active_question_id_it,
                 wbd.wbd_global.current_page_number_int
@@ -212,7 +212,7 @@ class DiaryListCompositeWidget(QtWidgets.QWidget):
                 time_qlabel.setText(date_str)
             old_date_str = date_str
 
-            if wbd_global.active_view_viewenum == wbd_global.ViewEnum.question_view:
+            if wbd_global.active_view_viewenum == wbd_global.ViewEnum.habit_view:
                 pass
             elif wbd_global.active_view_viewenum == wbd_global.ViewEnum.daily_overview:
                 if diary_entry.habit_ref_it != wbd.wbd_global.NO_ACTIVE_HABIT_INT:

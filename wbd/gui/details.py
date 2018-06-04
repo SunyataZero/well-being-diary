@@ -61,7 +61,7 @@ class CompositeDetailsWidget(QtWidgets.QWidget):
         # -"None" cannot be sent using the signal system since it is not an "int"
 
         if not wbd.wbd_global.diary_view_locked_bool:
-            wbd.wbd_global.active_view_viewenum = wbd.wbd_global.ViewEnum.question_view
+            wbd.wbd_global.active_view_viewenum = wbd.wbd_global.ViewEnum.habit_view
 
         if wbd.wbd_global.active_question_id_it is not None:
             question = wbd.model.HabitM.get(wbd.wbd_global.active_question_id_it)

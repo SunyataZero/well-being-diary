@@ -6,7 +6,7 @@ import wbd.model
 import wbd.wbd_global
 
 
-class SearchAndTagsCompositeWidget(QtWidgets.QWidget):
+class ReadingWidget(QtWidgets.QWidget):
     search_text_changed_signal = QtCore.pyqtSignal()
 
     def __init__(self):
@@ -35,7 +35,7 @@ class SearchAndTagsCompositeWidget(QtWidgets.QWidget):
         vbox1.addWidget(self.question_view_qrb)
         self.view_radio_qbuttongroup.addButton(
             self.question_view_qrb,
-            wbd.wbd_global.ViewEnum.question_view.value)
+            wbd.wbd_global.ViewEnum.habit_view.value)
         self.search_view_qrb = QtWidgets.QRadioButton("Search")
         self.view_radio_qbuttongroup.addButton(
             self.search_view_qrb,
@@ -94,7 +94,6 @@ class SearchAndTagsCompositeWidget(QtWidgets.QWidget):
         """
 
         # self.custom_calendar_w3.update_gui()
-
 
         """
         # Row 1
@@ -161,8 +160,8 @@ class SearchAndTagsCompositeWidget(QtWidgets.QWidget):
         if wbd.wbd_global.active_view_viewenum == wbd.wbd_global.ViewEnum.daily_overview:
             self.view_type_qll.setText("<h3>Daily Overview</h3>")
             self.daily_overview_qrb.setChecked(True)
-        elif wbd.wbd_global.active_view_viewenum == wbd.wbd_global.ViewEnum.question_view:
-            self.view_type_qll.setText("<h3>Question View</h3>")
+        elif wbd.wbd_global.active_view_viewenum == wbd.wbd_global.ViewEnum.habit_view:
+            self.view_type_qll.setText("<h3>Habit View</h3>")
             self.question_view_qrb.setChecked(True)
         elif wbd.wbd_global.active_view_viewenum == wbd.wbd_global.ViewEnum.search_view:
             self.view_type_qll.setText("<h3>Search View</h3>")

@@ -15,7 +15,7 @@ ICONS_DIR_STR = "icons"
 
 class ViewEnum(enum.Enum):
     daily_overview = 0
-    question_view = 1
+    habit_view = 1
     search_view = 2
 
 

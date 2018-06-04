@@ -13,7 +13,7 @@ import wbd.gui.wisdom
 import wbd.wbd_global
 import wbd.gui.quotes
 import wbd.gui.reminders
-import wbd.gui.search_and_tags
+import wbd.gui.reading
 import wbd.gui.details
 
 
@@ -101,7 +101,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # ..tags
         tags_dock_qw2 = QtWidgets.QDockWidget("Search and Tags", self)
-        self.tags_composite_w3 = wbd.gui.search_and_tags.SearchAndTagsCompositeWidget()
+        self.tags_composite_w3 = wbd.gui.reading.ReadingWidget()
         self.tags_composite_w3.search_text_changed_signal.connect(self.on_search_text_changed)
         tags_dock_qw2.setWidget(self.tags_composite_w3)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, tags_dock_qw2)
