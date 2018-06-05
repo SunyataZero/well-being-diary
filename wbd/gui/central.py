@@ -77,15 +77,18 @@ class CompositeCentralWidget(QtWidgets.QWidget):
         self.time_of_day_qsr.valueChanged.connect(self.hour_slider_changed)
         adding_area_hbox_l3.addWidget(self.time_of_day_qsr)
 
-        time_of_day_vbox_l4 = QtWidgets.QVBoxLayout()
-        adding_area_hbox_l3.addLayout(time_of_day_vbox_l4)
+        datetime_vbox_l4 = QtWidgets.QVBoxLayout()
+        adding_area_hbox_l3.addLayout(datetime_vbox_l4)
+
+        self.date_qde = QtWidgets.QDateEdit()
+        datetime_vbox_l4.addWidget(self.date_qde)
 
         self.time_of_day_qte = QtWidgets.QTimeEdit()
         # self.time_of_day_qte.setDisplayFormat("HH:MM")
-        time_of_day_vbox_l4.addWidget(self.time_of_day_qte)
+        datetime_vbox_l4.addWidget(self.time_of_day_qte)
 
         minute_grid_l5 = QtWidgets.QGridLayout()
-        time_of_day_vbox_l4.addLayout(minute_grid_l5)
+        datetime_vbox_l4.addLayout(minute_grid_l5)
         MINUTE_BUTTON_WIDTH_INT = 32
         self.minute_0_qpb = QtWidgets.QPushButton("00")
         qfont = self.minute_0_qpb.font()
@@ -93,22 +96,22 @@ class CompositeCentralWidget(QtWidgets.QWidget):
         self.minute_0_qpb.setFont(qfont)
         self.minute_0_qpb.setFixedWidth(MINUTE_BUTTON_WIDTH_INT)
         minute_grid_l5.addWidget(self.minute_0_qpb, 0, 0)
-        # time_of_day_vbox_l4.addWidget(self.minute_0_qpb)
+        # datetime_vbox_l4.addWidget(self.minute_0_qpb)
         self.minute_15_qpb = QtWidgets.QPushButton("15")
         self.minute_15_qpb.setFont(qfont)
         self.minute_15_qpb.setFixedWidth(MINUTE_BUTTON_WIDTH_INT)
         minute_grid_l5.addWidget(self.minute_15_qpb, 0, 1)
-        # time_of_day_vbox_l4.addWidget(self.minute_15_qpb)
+        # datetime_vbox_l4.addWidget(self.minute_15_qpb)
         self.minute_30_qpb = QtWidgets.QPushButton("30")
         self.minute_30_qpb.setFont(qfont)
         self.minute_30_qpb.setFixedWidth(MINUTE_BUTTON_WIDTH_INT)
         minute_grid_l5.addWidget(self.minute_30_qpb, 1, 0)
-        # time_of_day_vbox_l4.addWidget(self.minute_30_qpb)
+        # datetime_vbox_l4.addWidget(self.minute_30_qpb)
         self.minute_45_qpb = QtWidgets.QPushButton("45")
         self.minute_45_qpb.setFont(qfont)
         self.minute_45_qpb.setFixedWidth(MINUTE_BUTTON_WIDTH_INT)
         minute_grid_l5.addWidget(self.minute_45_qpb, 1, 1)
-        # time_of_day_vbox_l4.addWidget(self.minute_45_qpb)
+        # datetime_vbox_l4.addWidget(self.minute_45_qpb)
 
 
         # ..text input area
@@ -205,6 +208,9 @@ class CompositeCentralWidget(QtWidgets.QWidget):
     def on_diary_entry_left_clicked(self, i_diary_entry_id: int):
         if self.adding_text_to_diary_textedit_w6.toPlainText().strip():
             return  # -we don't want to clear away text that has been entered
+        if i_diary_entry_id is None:
+            return
+
         self.editing_diary_entry_int = i_diary_entry_id
 
         diary_entry = wbd.model.DiaryEntryM.get(i_diary_entry_id)
@@ -229,6 +235,17 @@ class CompositeCentralWidget(QtWidgets.QWidget):
 
     def update_gui(self):
         self.updating_gui_bool = True
+
+        if self.editing_diary_entry_int != NO_DIARY_ENTRY_EDITING_INT:
+            diary_entry = wbd.model.DiaryEntryM.get(self.editing_diary_entry_int)
+            """
+            date_part_int = diary_entry.date_added_it // 86400  # -will be rounded down
+            time_part_int = diary_entry.date_added_it % 86400
+            """
+            qdatetime = QtCore.QDateTime()
+            qdatetime.setSecsSinceEpoch(diary_entry.date_added_it)
+            self.date_qde.setDate(qdatetime.date())
+            self.time_of_day_qte.setTime(qdatetime.time())
 
         self.page_number_qll.setText(str(wbd.wbd_global.current_page_number_int + 1))
 
@@ -260,9 +277,24 @@ class CompositeCentralWidget(QtWidgets.QWidget):
         notes_sg = self.adding_text_to_diary_textedit_w6.toPlainText().strip()
 
         if self.editing_diary_entry_int != NO_DIARY_ENTRY_EDITING_INT:
+            logging.debug("EDITING for self.editing_diary_entry_int = " + str(self.editing_diary_entry_int))
             # -editing a diary entry
             wbd.model.DiaryEntryM.update_note(self.editing_diary_entry_int, notes_sg)
+
+            # TODO: Add the possibility of editing more things here, like the time and date
+
+            # diary_entry = wbd.model.DiaryEntryM.get(self.editing_diary_entry_int)
+            #diary_entry.
+            qdate = self.date_qde.date()
+            qtime = self.time_of_day_qte.time()
+            qdatetime = QtCore.QDateTime(qdate, qtime)
+            # qdatetime.setDate(qdate)
+            # qdatetime.setTime(qtime)
+            total_time_int = qdatetime.toSecsSinceEpoch()
+            wbd.model.DiaryEntryM.update_date(self.editing_diary_entry_int, total_time_int)
+
             self.editing_diary_entry_int = NO_DIARY_ENTRY_EDITING_INT
+
         else:
             # -adding a new diary entry
             if wbd.wbd_global.active_date_qdate == QtCore.QDate.currentDate():

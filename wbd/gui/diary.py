@@ -15,11 +15,10 @@ import wbd.gui.question_selection_dialog
 
 MY_WIDGET_NAME_STR = "test-name"
 BACKGROUND_IMAGE_PATH_STR = "Gerald-G-Yoga-Poses-stylized-1-300px-CC0.png"
-#"Gerald-G-Yoga-Poses-stylized-CC0.svg"
+# -possible to use an svg file here instead?
 NO_ENTRY_CLICKED_INT = -1
 
 
-# noinspection PyArgumentList
 class DiaryListCompositeWidget(QtWidgets.QWidget):
     """
     Inspiration for this class:
@@ -42,9 +41,9 @@ class DiaryListCompositeWidget(QtWidgets.QWidget):
         self.scroll_area_w3.verticalScrollBar().rangeChanged.connect(self.move_scrollbar_to_bottom)
         self.scroll_list_widget_w4 = QtWidgets.QWidget()
         self.scroll_list_widget_w4.setObjectName(MY_WIDGET_NAME_STR)
-        self.scroll_list_widget_w4.setStyleSheet("#" + MY_WIDGET_NAME_STR
-                                                 + "{" + "background-image:url(\"" + wbd.wbd_global.background_image_path
-                                                 + "\"); background-position:center; background-repeat:no-repeat" + "}")
+        self.scroll_list_widget_w4.setStyleSheet(
+            "#" + MY_WIDGET_NAME_STR + "{" + "background-image:url(\"" + wbd.wbd_global.background_image_path
+            + "\"); background-position:center; background-repeat:no-repeat" + "}")
         self.scroll_list_vbox_l5 = QtWidgets.QVBoxLayout()
 
         self.scroll_list_widget_w4.setLayout(self.scroll_list_vbox_l5)
