@@ -20,6 +20,7 @@ class CompositeDetailsWidget(QtWidgets.QWidget):
 
         # self.qframe = QtWidgets.QFrame()
 
+        """
         self.qtextedit = QtWidgets.QLabel()
         self.qtextedit.setWordWrap(True)
         new_font = self.qtextedit.font()
@@ -29,14 +30,14 @@ class CompositeDetailsWidget(QtWidgets.QWidget):
         self.qtextedit.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding)
         self.qtextedit.setAlignment(QtCore.Qt.AlignTop)
         vbox2.addWidget(self.qtextedit)
-
         """
+
         self.qtextedit = QtWidgets.QTextEdit()
-        self.qtextedit.setFontPointSize(16)
+        self.qtextedit.setFontPointSize(14)
         # self.qtextedit.textChanged.connect(self.on_textedit_changed)
         self.qtextedit.setReadOnly(True)
+        # QTextBrowser: setOpenExternalLinks(True)
         vbox2.addWidget(self.qtextedit)
-        """
 
         """
         # ..shared info
