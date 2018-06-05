@@ -54,6 +54,11 @@ background_image_path = ""
 diary_text_size_ft = -1
 
 
+def format_to_hashtag(i_plain: str):
+    journal_text_edited_str = " #" + i_plain.lower().replace(" ", "-")
+    return journal_text_edited_str
+
+
 def qdate_to_unixtime(i_qdate: QtCore.QDate) -> int:
     qdatetime = QtCore.QDateTime(i_qdate)
     unixtime_it = qdatetime.toMSecsSinceEpoch() // 1000

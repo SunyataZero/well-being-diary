@@ -168,7 +168,9 @@ class CompositeCentralWidget(QtWidgets.QWidget):
 
     def journals_activated(self, i_index: int):
         journal_text_str = self.journals_qcb.itemText(i_index)
-        journal_text_edited_str = " #" + journal_text_str.lower().replace(" ", "-")
+
+        journal_text_edited_str = wbd.wbd_global.format_to_hashtag(journal_text_str)
+
         logging.debug("journal_text = " + journal_text_edited_str)
         prev_text_cursor = self.adding_text_to_diary_textedit_w6.textCursor()
         self.adding_text_to_diary_textedit_w6.moveCursor(QtGui.QTextCursor.End)

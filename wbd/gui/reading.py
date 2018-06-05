@@ -72,6 +72,7 @@ class ReadingWidget(QtWidgets.QWidget):
         self.journals_qlw = QtWidgets.QListWidget()
         for journal in wbd.model.JournalM.get_all():
             self.journals_qlw.addItem(journal.title_str)
+        self.journals_qlw.currentRowChanged.connect(self.journal_row_changed)
         vbox1.addWidget(self.journals_qlw)
 
         """
@@ -131,8 +132,14 @@ class ReadingWidget(QtWidgets.QWidget):
         self.needs_composite.current_row_changed_signal.connect(self.on_tags_current_row_changed)
         """
 
-
         self.update_gui()
+
+    def journal_row_changed(self, i_current_row: int):
+        journal_item = self.journals_qlw.item(i_current_row)
+        journal_text_str = journal_item.text()
+        journal_text_edited_str = wbd.wbd_global.format_to_hashtag(journal_text_str)
+        self.search_qle.setText(journal_text_edited_str)
+        self.search_view_qrb.setChecked(True)
 
     def on_lock_view_clicked(self, i_checked: bool):
         wbd.wbd_global.diary_view_locked_bool = i_checked
