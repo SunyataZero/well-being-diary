@@ -132,16 +132,25 @@ class CompositeCentralWidget(QtWidgets.QWidget):
         self.journals_qcb.activated.connect(self.journals_activated)
         edit_diary_entry_vbox_l4.addWidget(self.journals_qcb)
 
-        self.rating_qsr = QtWidgets.QSlider()
-        self.rating_qsr.setOrientation(QtCore.Qt.Horizontal)
-        self.rating_qsr.setMaximumWidth(100)
-        self.rating_qsr.setMinimum(1)
-        self.rating_qsr.setMaximum(3)
-        self.rating_qsr.setTickPosition(QtWidgets.QSlider.TicksAbove)
-        self.rating_qsr.setTickInterval(1)
-        self.rating_qsr.setSingleStep(1)
-        self.rating_qsr.setPageStep(1)
-        edit_diary_entry_vbox_l4.addWidget(self.rating_qsr)
+        self.rating_qbuttongroup = QtWidgets.QButtonGroup(self)
+        self.rating_qbuttongroup.buttonToggled.connect(self.on_rating_toggled)
+
+        hbox_l5 = QtWidgets.QHBoxLayout()
+        edit_diary_entry_vbox_l4.addLayout(hbox_l5)
+
+        self.rating_one_qrb = QtWidgets.QRadioButton("1")
+        self.rating_qbuttongroup.addButton(self.rating_one_qrb, 1)
+        hbox_l5.addWidget(self.rating_one_qrb)
+
+        self.rating_two_qrb = QtWidgets.QRadioButton("2")
+        self.rating_qbuttongroup.addButton(self.rating_two_qrb, 2)
+        hbox_l5.addWidget(self.rating_two_qrb)
+
+        self.rating_three_qrb = QtWidgets.QRadioButton("3")
+        self.rating_qbuttongroup.addButton(self.rating_three_qrb, 3)
+        hbox_l5.addWidget(self.rating_three_qrb)
+
+        self.rating_one_qrb.setChecked(True)
 
         self.add_bn_w3 = QtWidgets.QPushButton(ADD_DIARY_BN_TEXT_STR)
         self.add_bn_w3.setFixedHeight(40)
@@ -165,6 +174,9 @@ class CompositeCentralWidget(QtWidgets.QWidget):
     def update_gui_journal_buttons(self):
         journalm_list = bwb_model.JournalM.get_all()
     """
+
+    def on_rating_toggled(self):
+        pass
 
     def journals_activated(self, i_index: int):
         journal_text_str = self.journals_qcb.itemText(i_index)
@@ -260,10 +272,13 @@ class CompositeCentralWidget(QtWidgets.QWidget):
                 unix_time_it = wbd.wbd_global.qdate_to_unixtime(wbd.wbd_global.active_date_qdate)
             logging.debug("t_unix_time_it = " + str(unix_time_it))
 
+            selected_rating_int = self.rating_qbuttongroup.checkedId()
             wbd.model.DiaryEntryM.add(
-                unix_time_it, wbd.model.SQLITE_FALSE,
+                unix_time_it,
                 notes_sg,
-                wbd.wbd_global.active_question_id_it)
+                wbd.wbd_global.active_question_id_it,
+                selected_rating_int
+            )
 
         self.adding_text_to_diary_textedit_w6.clear()
         # self.update_gui()

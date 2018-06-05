@@ -59,15 +59,16 @@ class ReadingWidget(QtWidgets.QWidget):
         hbox_l2 = QtWidgets.QHBoxLayout()
         vbox1.addLayout(hbox_l2)
         hbox_l2.addWidget(QtWidgets.QLabel("Rating"))
-        self.rating_qsr = QtWidgets.QSlider()
-        self.rating_qsr.setOrientation(QtCore.Qt.Horizontal)
-        self.rating_qsr.setMinimum(1)
-        self.rating_qsr.setMaximum(3)
-        self.rating_qsr.setTickPosition(QtWidgets.QSlider.TicksAbove)
-        self.rating_qsr.setTickInterval(1)
-        self.rating_qsr.setSingleStep(1)
-        self.rating_qsr.setPageStep(1)
-        hbox_l2.addWidget(self.rating_qsr)
+        self.rating_filter_qsr = QtWidgets.QSlider()
+        self.rating_filter_qsr.setOrientation(QtCore.Qt.Horizontal)
+        self.rating_filter_qsr.setMinimum(1)
+        self.rating_filter_qsr.setMaximum(3)
+        self.rating_filter_qsr.setTickPosition(QtWidgets.QSlider.TicksAbove)
+        self.rating_filter_qsr.setTickInterval(1)
+        self.rating_filter_qsr.setSingleStep(1)
+        self.rating_filter_qsr.setPageStep(1)
+        self.rating_filter_qsr.valueChanged.connect(self.rating_filter_changed)
+        hbox_l2.addWidget(self.rating_filter_qsr)
 
         self.journals_qlw = QtWidgets.QListWidget()
         for journal in wbd.model.JournalM.get_all():
@@ -132,6 +133,10 @@ class ReadingWidget(QtWidgets.QWidget):
         self.needs_composite.current_row_changed_signal.connect(self.on_tags_current_row_changed)
         """
 
+        self.update_gui()
+
+    def rating_filter_changed(self):
+        wbd.wbd_global.active_rating_filter_int = self.rating_filter_qsr.value()
         self.update_gui()
 
     def journal_row_changed(self, i_current_row: int):

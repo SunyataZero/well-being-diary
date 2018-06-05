@@ -458,17 +458,17 @@ class DiaryEntryM:
         self.journal_ref_it = i_journal_ref
 
     @staticmethod
-    def add(i_date_added_it, i_favorite_it, i_diary_text, i_journal_ref_it: int):
+    def add(i_date_added_it, i_diary_text, i_journal_ref_it: int, i_rating: int=1):
         db_connection = DbHelperM.get_db_connection()
         db_cursor = db_connection.cursor()
         db_cursor.execute(
             "INSERT INTO " + DbSchemaM.DiaryEntryTable.name + "("
             + DbSchemaM.DiaryEntryTable.Cols.date_added + ", "
-            + DbSchemaM.DiaryEntryTable.Cols.rating + ", "
             + DbSchemaM.DiaryEntryTable.Cols.diary_text + ", "
-            + DbSchemaM.DiaryEntryTable.Cols.habit_ref
+            + DbSchemaM.DiaryEntryTable.Cols.habit_ref + ", "
+            + DbSchemaM.DiaryEntryTable.Cols.rating
             + ") VALUES (?, ?, ?, ?)",
-            (i_date_added_it, i_favorite_it, i_diary_text, i_journal_ref_it)
+            (i_date_added_it, i_diary_text, i_journal_ref_it, i_rating)
         )
         db_connection.commit()
 
@@ -577,14 +577,14 @@ class DiaryEntryM:
         return ret_diary_list
 
     @staticmethod
-    def get_all_for_search_term(i_search_term_str: str, i_page_number_int: int):
+    def get_all_for_search_term(i_search_term_str: str, i_page_number_int: int, i_rating_filter: int):
         ret_diary_list = []
         db_connection = DbHelperM.get_db_connection()
         db_cursor = db_connection.cursor()
         db_cursor_result = db_cursor.execute(
             "SELECT * FROM " + DbSchemaM.DiaryEntryTable.name
-            + " WHERE " + DbSchemaM.DiaryEntryTable.Cols.diary_text
-            + " LIKE " + '"%' + i_search_term_str + '%"'
+            + " WHERE " + DbSchemaM.DiaryEntryTable.Cols.diary_text + " LIKE " + '"%' + i_search_term_str + '%"'
+            + " AND " + DbSchemaM.DiaryEntryTable.Cols.rating + ">=" + str(i_rating_filter)
             + " ORDER BY " + DbSchemaM.DiaryEntryTable.Cols.date_added + " DESC "
             + " LIMIT " + str(wbd.wbd_global.diary_entries_per_page_int)
             + " OFFSET " + str(i_page_number_int * wbd.wbd_global.diary_entries_per_page_int)
@@ -872,34 +872,34 @@ def populate_db_with_test_data():
 
 
     DiaryEntryM.add(
-        time.time(), SQLITE_FALSE,
+        time.time(),
         "Dear Buddha, today i was #practicing #sitting meditation before meeting a friend of mine to be able to be more present during our meeting",
         wbd.wbd_global.NO_ACTIVE_HABIT_INT)
     DiaryEntryM.add(
-        time.time(), SQLITE_FALSE,
+        time.time(),
         "Dear Buddha, i'm #grateful for being able to breathe!",
         gratitude_id_int)
-    DiaryEntryM.add(time.time() - delta_day_it, SQLITE_FALSE,
+    DiaryEntryM.add(time.time() - delta_day_it,
         "Most difficult today was my negative thinking, #practicing with this by changing the peg from negative thoughts to positive thinking",
         practice_id_int)
     DiaryEntryM.add(
-        time.time() - 7 * delta_day_it, SQLITE_FALSE,
+        time.time() - 7 * delta_day_it,
         "Grateful for having a place to live, a roof over my head, food to eat, and people to care for",
         gratitude_id_int)
     DiaryEntryM.add(
-        time.time() - 7 * delta_day_it, SQLITE_FALSE,
+        time.time() - 7 * delta_day_it,
         "Grateful for the blue sky and the white clouds",
         gratitude_id_int)
     DiaryEntryM.add(
-        time.time() - 3 * delta_day_it, SQLITE_FALSE,
+        time.time() - 3 * delta_day_it,
         "Dear Buddha and friends in the Sangha, today i read about the four foundations of mindfulness. Some important parts: 1. Body 2. Feelings 3. Mind 4. Objects of mind",
         study_id_int)
     DiaryEntryM.add(
-        time.time() - 4 * delta_day_it, SQLITE_FALSE,
+        time.time() - 4 * delta_day_it,
         "Programming and working on the application. Using Python and Qt. Cooperating with @John and @Emma",
         contribution_id_int)
     DiaryEntryM.add(
-        time.time(), SQLITE_FALSE,
+        time.time(),
         "Dharma talk from ^Plum-Village",
         practice_id_int)
 

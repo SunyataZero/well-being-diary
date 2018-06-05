@@ -180,7 +180,8 @@ class DiaryListCompositeWidget(QtWidgets.QWidget):
         elif wbd_global.active_view_viewenum == wbd_global.ViewEnum.search_view:
             diary_list = wbd.model.DiaryEntryM.get_all_for_search_term(
                 wbd.wbd_global.search_string_str,
-                wbd.wbd_global.current_page_number_int
+                wbd.wbd_global.current_page_number_int,
+                wbd.wbd_global.active_rating_filter_int
             )
         else:
             raise Exception("Can not get here")
