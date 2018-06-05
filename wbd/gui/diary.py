@@ -190,8 +190,8 @@ class DiaryListCompositeWidget(QtWidgets.QWidget):
         for diary_entry in diary_list:
             label_text_sg = diary_entry.diary_text.strip()
 
-            hbox_l6 = QtWidgets.QHBoxLayout()
-            self.scroll_list_vbox_l5.addLayout(hbox_l6)
+            entry_hbox_l6 = QtWidgets.QHBoxLayout()
+            self.scroll_list_vbox_l5.addLayout(entry_hbox_l6)
 
             date_string_format_str = "%A"  # -weekday
             if wbd_global.active_view_viewenum == wbd_global.ViewEnum.daily_overview:
@@ -225,7 +225,7 @@ class DiaryListCompositeWidget(QtWidgets.QWidget):
             else:
                 pass
 
-            hbox_l6.addWidget(time_qlabel, stretch=1)
+            entry_hbox_l6.addWidget(time_qlabel, stretch=2)
 
             formatted_label_text_sg = label_text_sg
             if wbd_global.active_view_viewenum == wbd_global.ViewEnum.search_view:
@@ -250,9 +250,10 @@ class DiaryListCompositeWidget(QtWidgets.QWidget):
                 QtCore.Qt.TextSelectableByMouse
             )
 
-            hbox_l6.addWidget(listitem_cqll, stretch=5)
+            entry_hbox_l6.addWidget(listitem_cqll, stretch=10)
 
-            hbox_l6.addWidget(QtWidgets.QLabel(""), stretch=1)
+            rating_int = diary_entry.rating_int
+            entry_hbox_l6.addWidget(QtWidgets.QLabel(str(rating_int)), stretch=1)
 
         self.scroll_list_vbox_l5.addStretch()
 

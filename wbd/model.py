@@ -213,7 +213,7 @@ class DbSchemaM:
 class HabitM:
     def __init__(
     self, i_id: int, i_order: int, i_title: str, i_description: str, i_archived: bool,
-    i_hour: int, i_days_of_week: int, i_labels: str,
+    i_hour: int, i_days_of_week: int, i_labels: str
     ) -> None:
         self.id_int = i_id
         self.sort_order_int = i_order
