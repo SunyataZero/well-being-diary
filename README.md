@@ -1,6 +1,8 @@
-Project status: Pre-alpha
+# IMPORTANT: Well-Being Diary has moved to GitLab: https://gitlab.com/mindfulness-at-the-computer/mindfulness-at-the-computer
 
 # Well-being Diary
+
+Project status: Pre-alpha
 
 [![Join the chat at https://gitter.im/well-being-diary/Lobby](https://badges.gitter.im/well-being-diary/Lobby.svg)](https://gitter.im/well-being-diary/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
