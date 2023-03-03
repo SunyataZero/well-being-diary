@@ -1,4 +1,4 @@
-# IMPORTANT: Well-Being Diary has moved to GitLab: https://gitlab.com/mindfulness-at-the-computer/mindfulness-at-the-computer
+# IMPORTANT: This project has moved to Codeberg: https://codeberg.org/fswb/well-being-diary/
 
 # Give Up GitHub
 
